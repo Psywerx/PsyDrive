@@ -153,6 +153,8 @@ object PsyDrive {
   case class Particle() extends DisplayModel
   val particles = ListBuffer[Particle]()
   var gameover = -1
+  var isGameOver = false
+  var gameoverTimeLock = new TimeLock
   
   def models(): Traversable[DisplayModel] = (players.map(_.car) ++ List(terrain) ++ particles ++ trees ++ dropBranches ++ trails)
   
@@ -287,10 +289,10 @@ object PsyDrive {
               val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
               val rBox2 = r.car.box.offsetBy(r.car.pos + moveVector(r.car)*renderTime)
               if(pBox boxCollide rBox) {
-                if(p.car.vector.z > r.car.vector.z) {
-                  p.health -= r.car.vector.z.toInt*4
+                if(p.car.vector.z < r.car.vector.z) {
+                  p.health -= r.car.vector.z.toInt*3
                 } else {
-                  r.health -= p.car.vector.z.toInt*4
+                  r.health -= p.car.vector.z.toInt*3
                 }
 
                 p.health -= r.car.vector.z.toInt*2
@@ -301,8 +303,8 @@ object PsyDrive {
                   p.car.pos += moveVector(p.car) * 0.01f
                 }
                 if(pBox boxCollide rBox) p.car.pos -= moveVector(p.car) * 0.01f
-                p.car.vector.z = -p.car.vector.z/3f
-                r.car.vector.z = -r.car.vector.z/3f
+                p.car.vector.z = -p.car.vector.z/1.5f
+                r.car.vector.z = -r.car.vector.z/1.5f
               }
             }
             for(r <- trees) {
@@ -310,9 +312,9 @@ object PsyDrive {
               val rBox = r.box.offsetBy(r.pos)
               val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
               if((pBox boxCollide rBox) || (pBox2 boxCollide rBox)) {
-                if(p.car.vector.z > 3) {
+                if(false && p.car.vector.z > 3) {
                   val branch = r.data.asInstanceOf[Branch]
-                  def dropBranch(b: Branch): GeneratorModel = {          
+                  def dropBranch(b: Branch): GeneratorModel = {
                     b.detach()
                     b.children.foreach { child =>
                       if(child.depth < Settings.maxDepth) dropBranch(child)
@@ -353,9 +355,9 @@ object PsyDrive {
               math.cos(moveObj.rot.y/(180f/math.Pi)).toFloat*moveObj.vector.z
             )
             //cam.angle = Vec3(0,-1,50)
-            p.cam.angle = Vec3(0,-7,60)
+            p.cam.angle = Vec3(0,-20,160)
               
-            val camMulti = 10f
+            val camMulti = 7f
             //cam.pos = ((cam.pos*camMulti) + ((moveObj.pos - Vec3(0f,0f,-50f))*renderTime))/(camMulti+renderTime)
             p.cam.pos = ((p.cam.pos*camMulti) + ((moveObj.pos - p.cam.angle)*renderTime))/(camMulti+renderTime)
             p.cam.vector -= p.cam.vector*renderTime*0.05f
@@ -363,7 +365,9 @@ object PsyDrive {
 
         if(players(0).health <= 0 || players(1).health <= 0) {
           players.map(_.car.vector = Vec3())
-          pause = true;
+          pause = true
+          isGameOver = true
+          gameoverTimeLock.lockIt(5000)
         }
         // drop branches
         for(branch <- dropBranches) {
@@ -534,6 +538,8 @@ object PsyDrive {
       gameLoopRunning = false
       return
     }    
+    
+    if(isGameOver && !gameoverTimeLock.isLocked) sys.exit(0)
     
     val keymove = 1.5f*renderTime
     
