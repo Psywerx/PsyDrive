@@ -1,7 +1,7 @@
 PsyDrive
 ========
 
-A mario-kart style game with some people from Psywerx.
+A car game with some people from Psywerx.
 
 Written in Scala and Clojure, and uses the LWJGL game library.
 
