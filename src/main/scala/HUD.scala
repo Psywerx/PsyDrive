@@ -11,10 +11,10 @@ object HUD {
   def render() {
     cam.render
     
-    glDisable(GL_LIGHTING);
-    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_LIGHTING)
+    glDisable(GL_DEPTH_TEST)
     
-    glEnable(GL_BLEND);
+    glEnable(GL_BLEND)
     
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
     
@@ -35,7 +35,7 @@ object HUD {
 
     def doGameOver() {
       glPushMatrix()
-      glEnable(GL_TEXTURE_2D);
+      glEnable(GL_TEXTURE_2D)
       glBindTexture(GL_TEXTURE_2D, PsyDrive.gameover)
       val width = PsyDrive.winHeight
       val xpos = PsyDrive.winHeight/2-100
@@ -48,14 +48,14 @@ object HUD {
         glTexCoord2f(1,0); glVertex3f(width,0, 0)
         glTexCoord2f(0,0); glVertex3f(0,0, 0)
       glEnd()      
-      glDisable(GL_TEXTURE_2D);
+      glDisable(GL_TEXTURE_2D)
       glPopMatrix()
     }
 
     def playerHud(p: Player) {
       glPushMatrix()
 
-      glEnable(GL_TEXTURE_2D);
+      glEnable(GL_TEXTURE_2D)
       glBindTexture(GL_TEXTURE_2D, p.avatar)
       glColor4f(1,1,1,0.8f)
       glBegin(GL_QUADS)
@@ -64,7 +64,7 @@ object HUD {
         glTexCoord2f(1,0); glVertex3f(128,0, 0)
         glTexCoord2f(0,0); glVertex3f(0,0, 0)
       glEnd()      
-      glDisable(GL_TEXTURE_2D);
+      glDisable(GL_TEXTURE_2D)
       
       glPushMatrix()
       glColor4f(1,0,0,0.8f)
@@ -104,11 +104,11 @@ object HUD {
     glTranslatef(PsyDrive.winWidth/2,0,0)
     if(PsyDrive.players(1).health > 0) playerHud(PsyDrive.players(1))
 
-    glDisable(GL_TEXTURE_2D);
-    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D)
+    glDisable(GL_BLEND)
 
-    glEnable(GL_LIGHTING);
-    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING)
+    glEnable(GL_DEPTH_TEST)
   }
 
 }

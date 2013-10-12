@@ -8,7 +8,6 @@ object Global {
   object Settings {
     var graphics = 1 // polygon multiplier
     var maxDepth = 5 // tree depth
-    var pigAir = false // lol, pig fly ///@ wrong - model property, and collision related :P
     var worldSize = 200
     var gravity = Vec3(0f,-0.5f,0f)
   }

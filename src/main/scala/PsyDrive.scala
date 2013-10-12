@@ -73,24 +73,12 @@ object PsyDrive {
     graphics -= 1
     if(graphics == 1 && maxDepth > 5) maxDepth = 5
     println("decreased graphic detail to "+graphics)
-    /*for(model <- models()) {
-      tasks = tasks :+ (() => {
-        model.compile()
-        if(model.compileCache.size > 4) model.reset()
-      })
-    }*/
   }
   def increaseDetail() {
     import Settings._
     graphics += 1
     maxDepth += 1
     println("increased graphic detail to "+graphics)
-    /*for(model <- models()) {
-      tasks = tasks :+ (() => {
-        model.compile()
-        if(model.compileCache.size > 4) model.reset()
-      })
-    }*/
   }
     
   /**
@@ -118,12 +106,6 @@ object PsyDrive {
 
       if(currentTime-FPStimer > second*FPSseconds) {
         val FPS = frameCounter/FPSseconds.toFloat
-        // increase or decrease graphics detail
-        //if(lastFPS < 20 && FPS < 15 && Settings.graphics > 1 && tasks.length < 200) decreaseDetail()
-        //if(lastFPS > 50 && FPS > 50 && Settings.graphics < 2 && tasks.length < 200) increaseDetail()
-        
-        //for(model <- models() if(model.compileCache.size > 5)) model.reset()
-        
         println("-------------------")
         println("FPS: "+FPS)
         println("Tasks: "+tasks.length)
@@ -145,7 +127,7 @@ object PsyDrive {
   //models
   val cam = new Camera
   var terrain: GeneratorModel = null
-  val players = ListBuffer[Player]()
+  var players = ListBuffer[Player]()
   val trees = new ListBuffer[GeneratorModel]
   var futureTree: Future[GeneratorModel] = null
   val dropBranches = new ListBuffer[GeneratorModel]//TODO: HashSet?
@@ -156,7 +138,7 @@ object PsyDrive {
   var isGameOver = false
   var gameoverTimeLock = new TimeLock
   
-  def models(): Traversable[DisplayModel] = (players.map(_.car) ++ List(terrain) ++ particles ++ trees ++ dropBranches ++ trails)
+  def models(): Traversable[DisplayModel] = (players.map(_.car) ++ players.flatMap(_.shots).map(_.bullet) ++ List(terrain) ++ particles ++ trees ++ dropBranches ++ trails)
   
   def makeModels() {
     terrain = TerrainFactory()
@@ -165,19 +147,37 @@ object PsyDrive {
     
     gameover = Utils.loadTex("gameover.png", GL_NEAREST)
     
-    players += Player(
+    val controls1 = Controls(up = KEY_W, left = KEY_A, right = KEY_D, shoot = KEY_S)
+    val controls2 = Controls(up = KEY_I, left = KEY_J, right = KEY_L, shoot = KEY_K)
+    val controls3 = Controls(up = KEY_UP, left = KEY_LEFT, right = KEY_RIGHT, shoot = KEY_DOWN)
+
+    /*players += Player(
       "hypernurb", 
       Car(color = Vec3(0.9f,0.0f,0.0f)),
       Controls(up = KEY_W, left = KEY_A, right = KEY_D),
       new Camera,
-      avatar = Utils.loadTex("hypernurb.png", GL_NEAREST))
+      avatar = Utils.loadTex("hypernurb.png", GL_NEAREST))*/
+    players += Player(
+      "rainbowsocks", 
+      Car(color = Vec3(-1f,-1f,-1f)),
+      controls1,
+      new Camera,
+      avatar = Utils.loadTex("rainbowsocks.png", GL_NEAREST))
+    players += Player(
+      "lord_ddoom", 
+      Car(color = Vec3(0.1f,0.25f,0.1f)),
+      controls2,
+      new Camera,
+      avatar = Utils.loadTex("lord_ddoom.png", GL_NEAREST))
     players += Player(
       "smotko",
       Car(color = Vec3(0.35f,0.75f,0.95f)),
-      Controls(up = KEY_I, left = KEY_J, right = KEY_L),
+      controls3,
       new Camera,
       avatar = Utils.loadTex("smotko.png", GL_NEAREST))
     
+    players = scala.util.Random.shuffle(players.toBuffer).take(2).to[ListBuffer]
+
     for((player, i) <- players.zipWithIndex) {
       player.car.setPosition(i*20,player.car.scaling.y+1,0)
       player.car.vector = Vec3(0,0,0)
@@ -262,7 +262,7 @@ object PsyDrive {
         }
         
         // execute non-time-critical tasks... spread them out
-        if(!tasks.isEmpty && !Settings.pigAir) {
+        if(!tasks.isEmpty) {
           val cutoff = if(pause) 10 else 50
           for(i <- 0 to tasks.length/cutoff; if(0.05f+(tasks.length-cutoff*i)/(cutoff.toFloat) > nextFloat)) doTask()
         }
@@ -276,6 +276,14 @@ object PsyDrive {
             math.cos(obj.rot.y/(180f/math.Pi)).toFloat*obj.vector.z
           )
           for(p <- players) {
+            //shots
+            for(s <- p.shots) {
+              s.bullet.pos += moveVector(s.bullet)*renderTime
+              val tmp = s.bullet.pos.clone
+              s.bullet.pos.clamp(Settings.worldSize+5)
+              if(tmp != s.bullet.pos) s.dispose()
+            }
+
             if(math.abs(p.car.vector.z) < 0.1) p.car.vector.z = 0.1f
             
             p.car.vector.z += 0.05f*renderTime
@@ -283,6 +291,16 @@ object PsyDrive {
 
             p.car.pos += moveVector(p.car)*renderTime
             //collision detection
+            for(p2 <- players filterNot { _ == p}; s <- p2.shots) {
+              val pBox = p.car.box.offsetBy(p.car.pos)
+              val sBox = s.bullet.box.offsetBy(s.bullet.pos)
+              val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
+              if((pBox boxCollide sBox) || (pBox2 boxCollide sBox)) {
+                  p.health -= 50
+                  p.car.vector.z = -p.car.vector.z/300f
+                  s.dispose()
+              }
+            }
             for(r <- players; if !(r eq p)) {
               val pBox = p.car.box.offsetBy(p.car.pos)
               val rBox = r.car.box.offsetBy(r.car.pos)
@@ -355,7 +373,7 @@ object PsyDrive {
               math.cos(moveObj.rot.y/(180f/math.Pi)).toFloat*moveObj.vector.z
             )
             //cam.angle = Vec3(0,-1,50)
-            p.cam.angle = Vec3(0,-20,160)
+            p.cam.angle = Vec3(0,-5,100)
               
             val camMulti = 7f
             //cam.pos = ((cam.pos*camMulti) + ((moveObj.pos - Vec3(0f,0f,-50f))*renderTime))/(camMulti+renderTime)
@@ -500,7 +518,7 @@ object PsyDrive {
       
       
       if(futureTree == null) {
-        if(trees.length < 7 && !Settings.pigAir && tasks.size < 500) futureTree = future { TreeFactory() }
+        if(trees.length < 7 && tasks.size < 500) futureTree = future { TreeFactory() }
       } else if(futureTree.isCompleted) {
         val presentTree = Await.result(futureTree, Duration.Inf)
         trees += presentTree
@@ -520,7 +538,7 @@ object PsyDrive {
         futureTree = null
         println("new tree added")
       }
-      
+
       renderTimes += time { 
         for(p <- players) {
           glPushMatrix()
@@ -562,6 +580,7 @@ object PsyDrive {
       if(isKeyDown(p.keys.up))  { p.car.vector.z += 0.2f; }
       if(isKeyDown(p.keys.left))  { p.car.rot.y += keymove*7f; p.car.vector.z -= 0.05f*p.car.vector.z*renderTime }
       if(isKeyDown(p.keys.right)) { p.car.rot.y -= keymove*7f; p.car.vector.z -= 0.05f*p.car.vector.z*renderTime }
+      if(isKeyDown(p.keys.shoot)) { if(!p.isShooting) p.shoot() }
     }
     
     if(isKeyDown(KEY_O)) {

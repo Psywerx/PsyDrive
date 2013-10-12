@@ -222,64 +222,155 @@ object PigFactory extends ModelFactory {
   override def apply() = new GeneratorModel(genPig, drawPig)
 }
 
-case class Car(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f)) extends DisplayModel(() => {
+case class Bullet(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f)) extends DisplayModel(() => {
+    def cube() {
+      glBegin(GL_QUADS)
+        // top
+        glNormal3f( 0f, 1f, 0f)
+        glVertex3f( 1f, 1f,-1f)
+        glVertex3f(-1f, 1f,-1f)
+        glVertex3f(-1f, 1f, 1f)
+        glVertex3f( 1f, 1f, 1f)
+        // bottom 
+        glNormal3f( 0f,-1f, 1f)
+        glVertex3f( 1f,-1f, 1f)
+        glVertex3f(-1f,-1f, 1f)
+        glVertex3f(-1f,-1f,-1f)
+        glVertex3f( 1f,-1f,-1f)
+        // Front
+        glNormal3f( 0f, 0f, 1f)
+        glVertex3f( 1f, 1f, 1f)
+        glVertex3f(-1f, 1f, 1f) 
+        glVertex3f(-1f,-1f, 1f)
+        glVertex3f( 1f,-1f, 1f)
+        // back
+        glNormal3f( 0f, 0f,-1f)
+        glVertex3f( 1f,-1f,-1f)
+        glVertex3f(-1f,-1f,-1f)
+        glVertex3f(-1f, 1f,-1f)
+        glVertex3f( 1f, 1f,-1f)
+        // left
+        glNormal3f(-1f, 0f, 0f)
+        glVertex3f(-1f, 1f, 1f)
+        glVertex3f(-1f, 1f,-1f)
+        glVertex3f(-1f,-1f,-1f)
+        glVertex3f(-1f,-1f, 1f)
+        // right
+        glNormal3f( 1f, 0f, 0f)
+        glVertex3f( 1f, 1f,-1f)
+        glVertex3f( 1f, 1f, 1f)
+        glVertex3f( 1f,-1f, 1f)
+        glVertex3f( 1f,-1f,-1f)
+      glEnd()
+    }  
+
     glPushMatrix()
-    glScalef(scaling.x,scaling.y,scaling.z)
-    glColor3f(color.x,color.y,color.z)
-    glBegin(GL_QUADS)
-      // top
-      glNormal3f( 0f, 1f, 0f)
-      glVertex3f( 1f, 1f,-1f)
-      glVertex3f(-1f, 1f,-1f)
-      glVertex3f(-1f, 1f, 1f)
-      glVertex3f( 1f, 1f, 1f)
-      // bottom 
-      glNormal3f( 0f,-1f, 1f)
-      glVertex3f( 1f,-1f, 1f)
-      glVertex3f(-1f,-1f, 1f)
-      glVertex3f(-1f,-1f,-1f)
-      glVertex3f( 1f,-1f,-1f)
-      // Front
-      glNormal3f( 0f, 0f, 1f)
-      glVertex3f( 1f, 1f, 1f)
-      glVertex3f(-1f, 1f, 1f) 
-      glVertex3f(-1f,-1f, 1f)
-      glVertex3f( 1f,-1f, 1f)
-      // back
-      glNormal3f( 0f, 0f,-1f)
-      glVertex3f( 1f,-1f,-1f)
-      glVertex3f(-1f,-1f,-1f)
-      glVertex3f(-1f, 1f,-1f)
-      glVertex3f( 1f, 1f,-1f)
-      // left
-      glNormal3f(-1f, 0f, 0f)
-      glVertex3f(-1f, 1f, 1f)
-      glVertex3f(-1f, 1f,-1f)
-      glVertex3f(-1f,-1f,-1f)
-      glVertex3f(-1f,-1f, 1f)
-      // right
-      glNormal3f( 1f, 0f, 0f)
-      glVertex3f( 1f, 1f,-1f)
-      glVertex3f( 1f, 1f, 1f)
-      glVertex3f( 1f,-1f, 1f)
-      glVertex3f( 1f,-1f,-1f)
-    glEnd()
+      if(color.x < 0d) glColor3f(util.Random.nextFloat,util.Random.nextFloat,util.Random.nextFloat)
+      else glColor3f(color.x,color.y,color.z)
+      glPushMatrix()//canon
+        glScaled(scaling.y*0.3,scaling.y*0.3,scaling.y*0.3)
+        //glTranslated(0,0,0)
+        cube()
+      glPopMatrix()
+    glPopMatrix()
+})
+{
+  val box = new BoundingBox(Vec3())
+  box.min -= 1
+  box.max += 1
+}
+
+case class Car(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f)) extends DisplayModel(() => {
+    def cube() {
+      glBegin(GL_QUADS)
+        // top
+        glNormal3f( 0f, 1f, 0f)
+        glVertex3f( 1f, 1f,-1f)
+        glVertex3f(-1f, 1f,-1f)
+        glVertex3f(-1f, 1f, 1f)
+        glVertex3f( 1f, 1f, 1f)
+        // bottom 
+        glNormal3f( 0f,-1f, 1f)
+        glVertex3f( 1f,-1f, 1f)
+        glVertex3f(-1f,-1f, 1f)
+        glVertex3f(-1f,-1f,-1f)
+        glVertex3f( 1f,-1f,-1f)
+        // Front
+        glNormal3f( 0f, 0f, 1f)
+        glVertex3f( 1f, 1f, 1f)
+        glVertex3f(-1f, 1f, 1f) 
+        glVertex3f(-1f,-1f, 1f)
+        glVertex3f( 1f,-1f, 1f)
+        // back
+        glNormal3f( 0f, 0f,-1f)
+        glVertex3f( 1f,-1f,-1f)
+        glVertex3f(-1f,-1f,-1f)
+        glVertex3f(-1f, 1f,-1f)
+        glVertex3f( 1f, 1f,-1f)
+        // left
+        glNormal3f(-1f, 0f, 0f)
+        glVertex3f(-1f, 1f, 1f)
+        glVertex3f(-1f, 1f,-1f)
+        glVertex3f(-1f,-1f,-1f)
+        glVertex3f(-1f,-1f, 1f)
+        // right
+        glNormal3f( 1f, 0f, 0f)
+        glVertex3f( 1f, 1f,-1f)
+        glVertex3f( 1f, 1f, 1f)
+        glVertex3f( 1f,-1f, 1f)
+        glVertex3f( 1f,-1f,-1f)
+      glEnd()
+    }
+
+    glPushMatrix()
+      if(color.x < 0d) glColor3f(0.7f,0.1f,0.1f)
+      else glColor3f(color.x,color.y,color.z)
+      glPushMatrix()//tank
+        glScalef(scaling.x,scaling.y,scaling.z)
+        cube();
+      glPopMatrix()
+      if(color.x < 0d) glColor3f(0.1f,0.6f,0.1f)
+      glPushMatrix()//canon
+        glScaled(scaling.y*0.3,scaling.y*0.3,scaling.z)
+        glTranslated(0,scaling.y*2.6,scaling.z*0.2)
+        cube()
+      glPopMatrix()
+      if(color.x < 0d) glColor3f(0.1f,0.1f,0.6f)
+      glPushMatrix()//cupole
+        glScaled(scaling.y*1.4,scaling.y*0.7,scaling.y*1.6)
+        glTranslated(0,scaling.y,0)
+        cube()
+      glPopMatrix()
     glPopMatrix()
 
     def drawWheel() {
       glRotatef(90, 0,1,0)
-      glColor3f(0.1f,0.1f,0.1f)
       gluQuadrics.cylinder.draw(1f,1f, scaling.x*2+2, Settings.graphics*9,1)
-      glColor3f(0.6f,0.6f,0.6f)
       gluQuadrics.disk.draw(0, 1, 20, 1)
       glTranslatef(0,0,scaling.x*2+2)
       gluQuadrics.disk.draw(0, 1, 20, 1)
     }
+    if(color.x < 0d) glColor3f(0.5f,0.4f,0.1f)
+    else glColor3f(0.1f,0.1f,0.1f)
     // Front wheel
     glPushMatrix()
     glTranslatef(-scaling.x-1,-scaling.y,scaling.z-2f)
     drawWheel()
     glPopMatrix()
+
+    if(color.x < 0d) glColor3f(0.1f,0.5f,0.5f)
+    glPushMatrix()
+    glTranslatef(-scaling.x-1,-scaling.y,scaling.z-5.25f)
+    drawWheel()
+    glPopMatrix()
+
+    if(color.x < 0d) glColor3f(0.5f,0.1f,0.5f)
+    glPushMatrix()
+    glTranslatef(-scaling.x-1,-scaling.y,-scaling.z+5.25f)
+    drawWheel()
+    glPopMatrix()
+
+    if(color.x < 0d) glColor3f(0.5f,0.5f,0.5f)
     // Back wheel
     glPushMatrix()
     glTranslatef(-scaling.x-1,-scaling.y,-scaling.z+2f)
