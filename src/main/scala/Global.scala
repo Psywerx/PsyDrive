@@ -48,22 +48,22 @@ object Utils {
     import de.matthiasmann.twl.utils.PNGDecoder
     try {
       val file = for(file <- (new File(".")).listFiles ++ (new File("src/main/resources")).listFiles; if(file.isFile && file.getName == filename)) yield file;
-	    // Open the PNG file as an InputStream
-	    val in = new FileInputStream(file.head)
-	    // Link the PNG decoder to this stream
-	    val decoder = new PNGDecoder(in)
-	
-	    // Get the width and height of the texture
-	    val tWidth = decoder.getWidth()
-	    val tHeight = decoder.getHeight()
-	
-	    // Decode the PNG file in a ByteBuffer
-	    val buf = ByteBuffer.allocateDirect(4 * decoder.getWidth() * decoder.getHeight())
-	    decoder.decode(buf, decoder.getWidth() * 4, PNGDecoder.Format.RGBA)
-	    buf.flip()
+      // Open the PNG file as an InputStream
+      val in = new FileInputStream(file.head)
+      // Link the PNG decoder to this stream
+      val decoder = new PNGDecoder(in)
+  
+      // Get the width and height of the texture
+      val tWidth = decoder.getWidth()
+      val tHeight = decoder.getHeight()
+  
+      // Decode the PNG file in a ByteBuffer
+      val buf = ByteBuffer.allocateDirect(4 * decoder.getWidth() * decoder.getHeight())
+      decoder.decode(buf, decoder.getWidth() * 4, PNGDecoder.Format.RGBA)
+      buf.flip()
 
       in.close()
-	
+  
       /*for(y <- 0 until image.getHeight; x <- 0 until image.getWidth) {
         val pixel = pixels((image.getWidth*image.getHeight - 1) -  (y * image.getWidth + x))
         //buffer.put(((pixel >> 24) & 0xFF).toByte)    // Alpha component. Only for RGBA

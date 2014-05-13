@@ -6,12 +6,12 @@ object Vec3 {
   def apply(): Vec3 = new Vec3
   def apply(x: Float, y: Float, z: Float): Vec3 = new Vec3(x, y, z) 
 }
-class Vec3(var x: Float, var y: Float, var z: Float) {
+final class Vec3(var x: Float, var y: Float, var z: Float) {
   def this() = this(0f, 0f, 0f)
   
   private def setPoints(v: Vec3) { x=v.x; y=v.y; z=v.z; }
   private def setPoints(x: Float, y: Float, z: Float) { this.x=x; this.y=y; this.z=z; }
-  private def setPoints(p: Array[Float]): Unit = setPoints(p(0), p(1), p(2))
+  //private def setPoints(p: Array[Float]): Unit = setPoints(p(0), p(1), p(2))
   
   override def clone: Vec3 = Vec3(x,y,z)
   private def each(f: Float => Float) { x = f(x); y = f(y); z = f(z); }
@@ -50,57 +50,56 @@ class Vec3(var x: Float, var y: Float, var z: Float) {
   override def toString: String = "%.2f, %.2f, %.2f".format(x,y,z)
 }
 
-class BoundingBox(var min: Vec3) {
-    min = min.clone
-    var max = min.clone
-    
-    def this(v1: Vec3, v2: Vec3) = {
-        this(v1.clone)
-        this += v2
-    }
-    def this(points: List[Vec3]) = {
-        this(points(0).clone)
-        for(i <- 1 until points.length) this += points(i)
-    }
-    
-    def boxCollide(b: BoundingBox, offset: Vec3 = Vec3()): Boolean = {///@ tolerance
-        ((min.x+offset.x <= b.max.x) && (max.x+offset.x >= b.min.x) && 
-         (min.y+offset.y <= b.max.y) && (max.y+offset.y >= b.min.y) &&
-         (min.z+offset.z <= b.max.z) && (max.z+offset.z >= b.min.z))
-    }
-    def pointCollide(v: Vec3, offset: Vec3 = Vec3()): Boolean = {
-        ((min.x+offset.x <= v.x) && (max.x+offset.x >= v.x) && 
-         (min.y+offset.y <= v.y) && (max.y+offset.y >= v.y) &&
-         (min.z+offset.z <= v.z) && (max.z+offset.z >= v.z))
-    }
-    def boxCollideDepth(b: BoundingBox, offset: Vec3 = Vec3()): Float = {
-      (if(min.x+offset.x <= b.max.x) abs(b.max.x - min.x+offset.x) else 0) +
-      (if(max.x+offset.x >= b.min.x) abs(max.x+offset.x - b.min.x) else 0) +
-      (if(min.y+offset.y <= b.max.y) abs(b.max.y - min.y+offset.y) else 0) +
-      (if(max.y+offset.y >= b.min.y) abs(max.y+offset.y - b.min.y) else 0) +
-      (if(min.z+offset.z <= b.max.z) abs(b.max.z - min.z+offset.z) else 0) +
-      (if(max.z+offset.z >= b.min.z) abs(max.z+offset.z - b.min.z) else 0)
-    }
-    
-    def +=(v: Vec3) {
-        this.min = min.minCoords(v)
-        this.max = max.maxCoords(v)
-    }
-    def +=(b: BoundingBox) {
-        this += b.min
-        this += b.max
-    }
-    def ++(b: BoundingBox): BoundingBox = {// merge boxes
-        var box = this.clone
-        box += b
-        box
-    }
-    def offsetBy(v: Vec3): BoundingBox = {// offset box
-        var box = this.clone
-        box.min += v
-        box.max += v
-        box
-    }
-    
-    override def clone: BoundingBox = new BoundingBox(min.clone,max.clone)
+final class BoundingBox(var min: Vec3) {
+  min = min.clone
+  var max = min.clone
+  
+  def this(v1: Vec3, v2: Vec3) = {
+    this(v1.clone)
+    this += v2
+  }
+  def this(points: List[Vec3]) = {
+    this(points(0).clone)
+    for(i <- 1 until points.length) this += points(i)
+  }
+  
+  def boxCollide(b: BoundingBox, offset: Vec3 = Vec3()): Boolean = {///@ tolerance
+    ((min.x+offset.x <= b.max.x) && (max.x+offset.x >= b.min.x) && 
+     (min.y+offset.y <= b.max.y) && (max.y+offset.y >= b.min.y) &&
+     (min.z+offset.z <= b.max.z) && (max.z+offset.z >= b.min.z))
+  }
+  def pointCollide(v: Vec3, offset: Vec3 = Vec3()): Boolean = (
+    (min.x+offset.x <= v.x) && (max.x+offset.x >= v.x) && 
+    (min.y+offset.y <= v.y) && (max.y+offset.y >= v.y) &&
+    (min.z+offset.z <= v.z) && (max.z+offset.z >= v.z))
+
+  def boxCollideDepth(b: BoundingBox, offset: Vec3 = Vec3()): Float = (
+    (if(min.x+offset.x <= b.max.x) abs(b.max.x - min.x+offset.x) else 0) +
+    (if(max.x+offset.x >= b.min.x) abs(max.x+offset.x - b.min.x) else 0) +
+    (if(min.y+offset.y <= b.max.y) abs(b.max.y - min.y+offset.y) else 0) +
+    (if(max.y+offset.y >= b.min.y) abs(max.y+offset.y - b.min.y) else 0) +
+    (if(min.z+offset.z <= b.max.z) abs(b.max.z - min.z+offset.z) else 0) +
+    (if(max.z+offset.z >= b.min.z) abs(max.z+offset.z - b.min.z) else 0))
+  
+  def +=(v: Vec3) {
+      this.min = min.minCoords(v)
+      this.max = max.maxCoords(v)
+  }
+  def +=(b: BoundingBox) {
+      this += b.min
+      this += b.max
+  }
+  def ++(b: BoundingBox): BoundingBox = {// merge boxes
+      var box = this.clone
+      box += b
+      box
+  }
+  def offsetBy(v: Vec3): BoundingBox = {// offset box
+      var box = this.clone
+      box.min += v
+      box.max += v
+      box
+  }
+  
+  override def clone: BoundingBox = new BoundingBox(min.clone, max.clone)
 }
