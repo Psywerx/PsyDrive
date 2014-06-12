@@ -22,7 +22,7 @@ object HUD {
       glPushMatrix()
       glColor4f(0,0,0,1f)
       val thickness = 50
-      glTranslatef(PsyDrive.winWidth/2f-thickness,0,0)
+      glTranslatef(PsyDrive.winWidth*0.5f-thickness,0,0)
       glScalef(50,PsyDrive.winHeight,1)
       glBegin(GL_QUADS)
         glVertex3f(0,1, 0)

@@ -1,7 +1,8 @@
 package org.psywerx.PsyDrive
 
 import org.lwjgl.util.glu.{Sphere,Cylinder,Disk,PartialDisk}
-import scala.collection.mutable.{ListBuffer,HashMap}
+import scala.collection.mutable
+import scala.collection.immutable.Queue
 // stuff that is used in all the (wrong) places :P
 // ... it's made of fail and state
 object Global {
@@ -12,7 +13,7 @@ object Global {
     var gravity = Vec3(0f,-0.5f,0f)
   }
   //def settings: SettingMap[String] = new SettingMap[String]
-  var tasks = List[() => Unit]()
+  var tasks = Queue.empty[() => Unit]
   
   object gluQuadrics {
     val sphere = new Sphere
@@ -106,8 +107,8 @@ object Utils {
 
 // some small classes
 
-class SettingMap[A] extends HashMap[A,Any] {
-  private val defaultMap = new HashMap[String, Any]
+class SettingMap[A] extends mutable.HashMap[A,Any] {
+  private val defaultMap = new mutable.AnyRefMap[String, Any]
   def setDefault[B](v: B)(implicit m: Manifest[B]): Unit = defaultMap += m.toString -> v
   def getDefault[B](implicit m: Manifest[B]): B = defaultMap.getOrElse(m.toString, null).asInstanceOf[B]
   

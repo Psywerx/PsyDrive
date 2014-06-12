@@ -15,7 +15,7 @@ case class Player(
     bullet.vector = Vec3(0,0,7)
     bullet.rot = this.car.rot.clone
 
-    shots = shots :+ Shot(bullet, this)
+    shots :+= Shot(bullet, this)
   }
   def isShooting(): Boolean = shots.nonEmpty
 }

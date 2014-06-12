@@ -2,7 +2,7 @@ package org.psywerx.PsyDrive
 
 import org.lwjgl.opengl.GL11
 import org.lwjgl.util.glu.GLU
-import scala.collection.mutable.{ListBuffer,HashMap}
+import scala.collection.mutable
 import scala.util.Random.{nextInt,nextFloat}
 
 abstract class Model {
@@ -166,7 +166,7 @@ class Branch(var parent: Branch) extends Properties {
 
   var depth = 1
   var marked = false
-  val children = new ListBuffer[Branch]
+  val children = new mutable.ListBuffer[Branch]
 
   setParent(parent)
 

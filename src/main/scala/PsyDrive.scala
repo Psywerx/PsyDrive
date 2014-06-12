@@ -258,22 +258,22 @@ object PsyDrive {
         def doTask() {
           tasks.head()
           tasks = tasks.tail
-          if(tasks.isEmpty) println("all tasks done")
         }
         
         // execute non-time-critical tasks... spread them out
-        if(!tasks.isEmpty) {
+        if(tasks.nonEmpty) {
           val cutoff = if(pause) 10 else 50
           for(i <- 0 to tasks.length/cutoff; if(0.05f+(tasks.length-cutoff*i)/(cutoff.toFloat) > nextFloat)) doTask()
+          if(tasks.isEmpty) println("all tasks done")
         }
       }
     
       if(!pause) {
         physicsTimes += time {
           def moveVector(obj: DisplayModel): Vec3 = Vec3(
-            math.sin(obj.rot.y/(180f/math.Pi)).toFloat*obj.vector.z,
+            math.sin(obj.rot.y*(math.Pi/180f)).toFloat*obj.vector.z,
             obj.vector.y,
-            math.cos(obj.rot.y/(180f/math.Pi)).toFloat*obj.vector.z
+            math.cos(obj.rot.y*(math.Pi/180f)).toFloat*obj.vector.z
           )
           for(p <- players) {
             //shots
@@ -330,7 +330,7 @@ object PsyDrive {
               val rBox = r.box.offsetBy(r.pos)
               val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
               if((pBox boxCollide rBox) || (pBox2 boxCollide rBox)) {
-                if(false && p.car.vector.z > 3) {
+                /*if(p.car.vector.z > 3) {
                   val branch = r.data.asInstanceOf[Branch]
                   def dropBranch(b: Branch): GeneratorModel = {
                     b.detach()
@@ -344,7 +344,7 @@ object PsyDrive {
                     val drop = new GeneratorModel(() => b, (data: Object) => data.asInstanceOf[Branch].doAll(_.render))
                     drop.pos = r.pos.clone
                     drop.vector = Vec3(
-                      (math.sin(p.car.rot.y/(180f/math.Pi)).toFloat*p.car.vector.z/2)*(1+nextFloat/6-nextFloat/12) +nextFloat/17-nextFloat/17,
+                      (math.sin(p.car.rot.y/fixme(180f/math.Pi)).toFloat*p.car.vector.z/2)*(1+nextFloat/6-nextFloat/12) +nextFloat/17-nextFloat/17,
                       p.car.vector.y/(5 + nextFloat/4 - nextFloat/4), 
                       (math.cos(p.car.rot.y/(180f/math.Pi)).toFloat*p.car.vector.z/2)*(1+nextFloat/6-nextFloat/12) +nextFloat/17-nextFloat/17
                     )
@@ -355,7 +355,7 @@ object PsyDrive {
                   branch.doWhile(b => true, b => dropBranches += dropBranch(b))
                   r.visible = false
                   trees -= r
-                } else {
+                } else */{
                   p.health -= p.car.vector.z.toInt
                   p.car.pos -= moveVector(p.car)*renderTime
                   p.car.vector.z = -p.car.vector.z/3f
@@ -368,9 +368,9 @@ object PsyDrive {
             val moveObj = p.car
             p.cam.lookAt(moveObj)
             val camVec = Vec3(
-              math.sin(moveObj.rot.y/(180f/math.Pi)).toFloat*moveObj.vector.z,
+              math.sin(moveObj.rot.y*(math.Pi/180f)).toFloat*moveObj.vector.z,
               0,
-              math.cos(moveObj.rot.y/(180f/math.Pi)).toFloat*moveObj.vector.z
+              math.cos(moveObj.rot.y*(math.Pi/180f)).toFloat*moveObj.vector.z
             )
             //cam.angle = Vec3(0,-1,50)
             p.cam.angle = Vec3(0,-5,100)
@@ -413,7 +413,7 @@ object PsyDrive {
             val drop = new GeneratorModel(() => b, (data: Object) => data.asInstanceOf[Branch].doAll(_.render))
             drop.pos = tree.pos.clone
             drop.vector = Vec3(
-              (math.sin(pig.rot.y/(180f/math.Pi)).toFloat*pig.vector.z/2)*(1+nextFloat/6-nextFloat/12) +nextFloat/17-nextFloat/17,
+              (math.sin(pig.rot.y/fixme(180f/math.Pi)).toFloat*pig.vector.z/2)*(1+nextFloat/6-nextFloat/12) +nextFloat/17-nextFloat/17,
               pig.vector.y/(5 + nextFloat/4 - nextFloat/4), 
               (math.cos(pig.rot.y/(180f/math.Pi)).toFloat*pig.vector.z/2)*(1+nextFloat/6-nextFloat/12) +nextFloat/17-nextFloat/17
             )
@@ -450,7 +450,7 @@ object PsyDrive {
                     var limit = 500
                     while(basebox.boxCollide(moveBox) && limit > 0) {
                       val moveVec = Vec3(
-                        math.sin(moveObj.rot.y/(180f/math.Pi)).toFloat*moveObj.vector.z,
+                        math.sin(moveObj.rot.y/fixme(180f/math.Pi)).toFloat*moveObj.vector.z,
                         0,
                         math.cos(moveObj.rot.y/(180f/math.Pi)).toFloat*moveObj.vector.z
                       )
@@ -533,7 +533,9 @@ object PsyDrive {
         }
         
         growTree(2, presentTree)
-        for(i <- 3 to Settings.maxDepth) tasks = tasks :+ (() => growTree(i, presentTree))
+        for(i <- 3 to Settings.maxDepth) {
+          tasks :+= (() => growTree(i, presentTree))
+        }
         
         futureTree = null
         println("new tree added")

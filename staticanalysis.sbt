@@ -10,10 +10,10 @@ import org.scalastyle.sbt.{ScalastylePlugin,PluginKeys}
 // addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.1.6")
 
 scalacOptions ++= Seq(
-  //"-feature",
+  "-feature",
   //"-deprecation",
   "-unchecked",
-  //"-Xlint",
+  "-Xlint",
   //"-Xstrict-inference",
   "-Ywarn-adapted-args",
   "-Ywarn-dead-code",
