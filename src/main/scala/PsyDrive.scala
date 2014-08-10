@@ -2,13 +2,14 @@ package org.psywerx.PsyDrive
 
 import org.lwjgl.opengl.{Display,PixelFormat,DisplayMode,Util}
 import org.lwjgl.input.Keyboard
-import scala.collection.mutable.ListBuffer
+import scala.collection.mutable
 import scala.collection.Traversable
 import java.nio._
 import scala.concurrent._
 import scala.concurrent.util._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
+import scala.util.Random
 import scala.util.Random.nextFloat
 import Keyboard._
 
@@ -23,6 +24,8 @@ object PsyDrive {
   
   val timeLock = new TimeLock
   var lastFPS = 0f
+  
+  var testNum1, testNum2, testNum3 = 0
   
   /**
    * Initializes display and enters main loop
@@ -44,7 +47,7 @@ object PsyDrive {
     Display.setVSyncEnabled(true)
     Display.setFullscreen(true)
 
-    val bestMode = Display.getAvailableDisplayModes.reduce((bestMode,mode) => 
+    val bestMode = Display.getAvailableDisplayModes.reduce((bestMode, mode) => 
       if(mode.getWidth >= bestMode.getWidth && mode.getHeight >= bestMode.getHeight 
       && mode.getBitsPerPixel >= bestMode.getBitsPerPixel) {
         mode 
@@ -112,6 +115,9 @@ object PsyDrive {
         println("Render: "+(renderTimes/fullTimes.toDouble).toFloat)
         println("Physics: "+(physicsTimes/fullTimes.toDouble).toFloat)
         println("Worker: "+(workerTimes/fullTimes.toDouble).toFloat)
+        if(testNum1 != 0) println("testNum1: " + testNum1)
+        if(testNum2 != 0) println("testNum2: " + testNum2)
+        if(testNum3 != 0) println("testNum3: " + testNum3)
         println("-------------------")
 
         lastFPS = FPS
@@ -127,18 +133,19 @@ object PsyDrive {
   //models
   val cam = new Camera
   var terrain: GeneratorModel = null
-  var players = ListBuffer[Player]()
-  val trees = new ListBuffer[GeneratorModel]
+  var players = Vector.empty[Player]
+  val trees = new mutable.ListBuffer[GeneratorModel]
   var futureTree: Future[GeneratorModel] = null
-  val dropBranches = new ListBuffer[GeneratorModel]//TODO: HashSet?
-  val trails = new ListBuffer[TrailModel]
+  val dropBranches = new mutable.ListBuffer[GeneratorModel]//TODO: HashSet?
+  val trails = new mutable.ListBuffer[TrailModel]
+  var diposedBullets = Vector.empty[Bullet]
   case class Particle() extends DisplayModel
-  val particles = ListBuffer[Particle]()
+  val particles = mutable.ListBuffer[Particle]()
   var gameover = -1
   var isGameOver = false
   var gameoverTimeLock = new TimeLock
   
-  def models(): Traversable[DisplayModel] = (players.map(_.car) ++ players.flatMap(_.shots).map(_.bullet) ++ List(terrain) ++ particles ++ trees ++ dropBranches ++ trails)
+  def models(): Traversable[DisplayModel] = (players.map(_.car) ++ players.flatMap(_.shots).map(_.bullet) ++ List(terrain) ++ particles ++ trees ++ dropBranches ++ trails ++ diposedBullets)
   
   def makeModels() {
     terrain = TerrainFactory()
@@ -157,26 +164,30 @@ object PsyDrive {
       Controls(up = KEY_W, left = KEY_A, right = KEY_D),
       new Camera,
       avatar = Utils.loadTex("hypernurb.png", GL_NEAREST))*/
-    players += Player(
-      "rainbowsocks", 
-      Car(color = Vec3(-1f,-1f,-1f)),
-      controls1,
-      new Camera,
-      avatar = Utils.loadTex("rainbowsocks.png", GL_NEAREST))
-    players += Player(
-      "lord_ddoom", 
-      Car(color = Vec3(0.1f,0.25f,0.1f)),
-      controls2,
-      new Camera,
-      avatar = Utils.loadTex("lord_ddoom.png", GL_NEAREST))
-    players += Player(
-      "smotko",
-      Car(color = Vec3(0.35f,0.75f,0.95f)),
-      controls3,
-      new Camera,
-      avatar = Utils.loadTex("smotko.png", GL_NEAREST))
     
-    players = scala.util.Random.shuffle(players.toBuffer).take(2).to[ListBuffer]
+    players = 
+      Random.shuffle(
+        mutable.Buffer(
+          Player(
+            "rainbowsocks", 
+            Car(color = Vec4(-1f,-1f,-1f)),
+            controls1,
+            new Camera,
+            avatar = Utils.loadTex("rainbowsocks.png", GL_NEAREST)),
+          Player(
+            "lord_ddoom", 
+            Car(color = Vec4(0.1f,0.25f,0.1f)),
+            controls2,
+            new Camera,
+            avatar = Utils.loadTex("lord_ddoom.png", GL_NEAREST)),
+          Player(
+            "smotko",
+            Car(color = Vec4(0.15f,0.45f,0.65f)),
+            controls3,
+            new Camera,
+            avatar = Utils.loadTex("smotko.png", GL_NEAREST))
+        )
+      ).take(2).toVector
 
     for((player, i) <- players.zipWithIndex) {
       player.car.setPosition(i*20,player.car.scaling.y+1,0)
@@ -192,7 +203,7 @@ object PsyDrive {
       player.cam.setRotation(0,0,0)
     }
     
-    futureTree = future { TreeFactory() }
+    //futureTree = future { TreeFactory() }
   }
   
   /**
@@ -255,21 +266,31 @@ object PsyDrive {
   def renderFrame() {
     fullTimes += time {
       workerTimes += time {///write tasks object
-        def doTask() {
-          tasks.head()
-          tasks = tasks.tail
-        }
-        
         // execute non-time-critical tasks... spread them out
         if(tasks.nonEmpty) {
-          val cutoff = if(pause) 10 else 50
-          for(i <- 0 to tasks.length/cutoff; if(0.05f+(tasks.length-cutoff*i)/(cutoff.toFloat) > nextFloat)) doTask()
-          if(tasks.isEmpty) println("all tasks done")
+          tasks.head()
+          tasks = tasks.tail
+          /*val cutoff = if(pause) 10 else 50
+          var tasksLen = tasks.length
+          def doTask() {
+            tasks.head()
+            tasks = tasks.tail
+            tasksLen -= 1
+          }
+          for(i <- 0 to tasksLen/cutoff; if(0.05f+(tasksLen-cutoff*i)/(cutoff.toFloat) > nextFloat)) doTask()
+          if(tasks.isEmpty) println("all tasks done")*/
         }
       }
     
       if(!pause) {
         physicsTimes += time {
+          diposedBullets = diposedBullets.filter { bullet =>
+            bullet.color.w *= 0.85f
+            bullet.scaling *= 1.3f
+            
+            (bullet.color.w > 0.1)
+          }
+          
           def moveVector(obj: DisplayModel): Vec3 = Vec3(
             math.sin(obj.rot.y*(math.Pi/180f)).toFloat*obj.vector.z,
             obj.vector.y,
@@ -334,7 +355,7 @@ object PsyDrive {
                   val branch = r.data.asInstanceOf[Branch]
                   def dropBranch(b: Branch): GeneratorModel = {
                     b.detach()
-                    b.children.foreach { child =>
+                    for(child <- b.children) {
                       if(child.depth < Settings.maxDepth) dropBranch(child)
                       child.marked = true
                     }
@@ -382,7 +403,10 @@ object PsyDrive {
           }
 
         if(players(0).health <= 0 || players(1).health <= 0) {
-          players.map(_.car.vector = Vec3())
+          for(p <- players) {
+            p.car.vector = Vec3()
+            for(shot <- p.shots) shot.dispose()
+          }
           pause = true
           isGameOver = true
           gameoverTimeLock.lockIt(5000)
@@ -403,7 +427,7 @@ object PsyDrive {
           val branch = tree.data.asInstanceOf[Branch]
           def dropBranch(b: Branch): GeneratorModel = {          
             b.detach()
-            b.children.foreach { child =>
+            for(child <- b.children) {
               if(child.depth < Settings.maxDepth) dropBranch(child)
               child.marked = true
             }
@@ -423,7 +447,7 @@ object PsyDrive {
             drop
           }
           
-          def getBox(m: DisplayModel): BoundingBox = { //TODO default value :)
+          def getBox(m: DisplayModel): BoundingBox = { //TODO: default value :)
             val out = m.properties.get[BoundingBox]("box")
             if(out == null) new BoundingBox(Vec3()) else out
           }
@@ -559,7 +583,9 @@ object PsyDrive {
       return
     }    
     
-    if(isGameOver && !gameoverTimeLock.isLocked) sys.exit(0)
+    if(isGameOver && !gameoverTimeLock.isLocked) {
+      sys.exit(0)
+    }
     
     val keymove = 1.5f*renderTime
     
@@ -585,6 +611,15 @@ object PsyDrive {
       if(isKeyDown(p.keys.shoot)) { if(!p.isShooting) p.shoot() }
     }
     
+    if(isKeyDown(KEY_1)) { testNum1 += 1 }
+    if(isKeyDown(KEY_2)) { testNum1 -= 1 }
+    if(isKeyDown(KEY_3)) { testNum2 += 1 }
+    if(isKeyDown(KEY_4)) { testNum2 -= 1 }
+    if(isKeyDown(KEY_5)) { testNum3 += 1 }
+    if(isKeyDown(KEY_6)) { testNum3 -= 1 }
+    
+    //players.head.car.bulletOffset = Vec3(testNum1/5f, 3+testNum2/5f, testNum3/5f)
+
     if(isKeyDown(KEY_O)) {
       println("Cam: "+cam.toString)
     }

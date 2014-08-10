@@ -24,9 +24,9 @@ abstract class Model {
     GL11.glTranslatef(pos.x, pos.y, pos.z)
   }
   def doRotate() {
-    if(rot.z != 0) GL11.glRotatef(rot.z, 0, 0, 1)
-    if(rot.y != 0) GL11.glRotatef(rot.y, 0, 1, 0)
-    if(rot.x != 0) GL11.glRotatef(rot.x, 1, 0, 0)
+    if(rot.z != 0) GL11.glRotatef(rot.z, 0,0,1)
+    if(rot.y != 0) GL11.glRotatef(rot.y, 0,1,0)
+    if(rot.x != 0) GL11.glRotatef(rot.x, 1,0,0)
   }
   def doScale() {
     GL11.glScalef(scale.x, scale.y, scale.z)
@@ -54,25 +54,28 @@ trait Cache { self: DisplayModel =>
     GL11.glEndList()
     compiled = true
   }
-
+  
   override def render() {
     if(visible) {
       GL11.glPushMatrix()
         doTransforms
 
         if(displayList == -1) {
-          renderfunc()
-        } else {
-          GL11.glCallList(displayList)
+          compile
         }
+        GL11.glCallList(displayList)
       GL11.glPopMatrix()
     }
   }
 }
 
+trait Rendrable {
+  def renderfunc: () => Unit
+}
 // doesn't care about points and stuff
-class DisplayModel(var renderfunc: () => Unit = () => ()) extends Model with Properties {
-  var (vector,vector2) = (Vec3(), Vec3())
+class DisplayModel(renderfun: () => Unit = () => ()) extends Model with Properties with Rendrable {
+  override def renderfunc: () => Unit = renderfun
+  var (vector, vector2) = (Vec3(), Vec3())
 /*  def reset(limit: Int = 1, preserveCurrent: Boolean = true) {
     if(compileCache.size > limit) {
       var count = 0
@@ -92,7 +95,7 @@ class DisplayModel(var renderfunc: () => Unit = () => ()) extends Model with Pro
   }*/
 
   override def clone: DisplayModel = {
-    val res = new DisplayModel(this.renderfunc)
+    val res = new DisplayModel()
     res.pos = this.pos.clone
     res.rot = this.rot.clone
     res.scale = this.scale.clone
@@ -112,13 +115,13 @@ class DisplayModel(var renderfunc: () => Unit = () => ()) extends Model with Pro
 class GeneratorModel(generator: () => Object, draw: Object => Unit) extends DisplayModel {
   var data: Object = generator()
   var box: BoundingBox = new BoundingBox(Vec3())
-  renderfunc = () => { draw(data); () }
+  override def renderfunc = () => { draw(data); () }
   //idfunc = _idfunc
   
-  def regenerate() {
-    data = generator()
-    //compile()
-  }
+  //def regenerate() {
+  //  data = generator()
+  //  //compile()
+  //}
   
   // make a data constructor, so clone has same data. (eliminate generator in static constructor)
   override def clone: GeneratorModel = {
@@ -138,7 +141,7 @@ class TrailModel(points: List[Vec3])
       import Global._
 
       val points = data.asInstanceOf[List[Vec3]]
-      glColor3f(1f,1f,1f)
+      glColor3f(1f, 1f, 1f)
       for(i <- 1 until points.length by 2) {
         val (vecA,vecB) = (points(i-1), points(i))
         

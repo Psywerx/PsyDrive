@@ -1,8 +1,9 @@
 package org.psywerx.PsyDrive
 
 import math._
+import org.apache.commons.math3.util.FastMath
 
-object Vec3 { 
+final object Vec3 { 
   def apply(): Vec3 = new Vec3
   def apply(x: Float, y: Float, z: Float): Vec3 = new Vec3(x, y, z) 
 }
@@ -14,8 +15,8 @@ final class Vec3(var x: Float, var y: Float, var z: Float) {
   //private def setPoints(p: Array[Float]): Unit = setPoints(p(0), p(1), p(2))
   
   override def clone: Vec3 = Vec3(x,y,z)
-  private def each(f: Float => Float) { x = f(x); y = f(y); z = f(z); }
-  private def map(f: Float => Float): Vec3 = { val out = this.clone; out.each(f); out }
+  @inline private def each(f: Float => Float) { x = f(x); y = f(y); z = f(z); }
+  @inline private def map(f: Float => Float): Vec3 = { val out = this.clone; out.each(f); out }
   def applyVector(v: Vec3, multi: Float = 1): Unit = setPoints(this + (v * multi))
   
   def unary_- : Vec3      = Vec3(-x, -y, -z)
@@ -33,7 +34,7 @@ final class Vec3(var x: Float, var y: Float, var z: Float) {
   def dot(v: Vec3): Float = x*v.x + y*v.y + z*v.z
 
   //maybe this needs to be normalized too
-  def angle(v: Vec3): Float = (180f/Pi * acos((this dot v)/v.length)).toFloat
+  def angle(v: Vec3): Float = (180f/Pi * FastMath.acos((this dot v)/v.length)).toFloat
 
   def length: Float = sqrt(this dot this).toFloat
   def ==(v: Vec3): Boolean = x == v.x && y == v.y && z == v.z
@@ -48,6 +49,15 @@ final class Vec3(var x: Float, var y: Float, var z: Float) {
   def clamp(cx: Float, cy: Float, cz: Float): Unit = setPoints(clamp(x, cx), clamp(y, cy), clamp(z, cz))
 
   override def toString: String = "%.2f, %.2f, %.2f".format(x,y,z)
+}
+
+final object Vec4 {
+  def apply(x: Float, y: Float, z: Float) = new Vec4(x,y,z,1f)
+  def apply(x: Float, y: Float, z: Float, w: Float) = new Vec4(x,y,z,w)
+}
+final class Vec4(var x: Float, var y: Float, var z: Float, var w: Float) {
+  override def clone: Vec4 = Vec4(x,y,z,w)
+  override def toString: String = "%.2f, %.2f, %.2f, %.2f".format(x,y,z,w)
 }
 
 final class BoundingBox(var min: Vec3) {

@@ -107,7 +107,7 @@ object Utils {
 
 // some small classes
 
-class SettingMap[A] extends mutable.HashMap[A,Any] {
+class SettingMap[A] extends mutable.HashMap[A, Any] {
   private val defaultMap = new mutable.AnyRefMap[String, Any]
   def setDefault[B](v: B)(implicit m: Manifest[B]): Unit = defaultMap += m.toString -> v
   def getDefault[B](implicit m: Manifest[B]): B = defaultMap.getOrElse(m.toString, null).asInstanceOf[B]
@@ -132,7 +132,7 @@ class TimeLock {
   
   private var lockTime = milliTime
   private var lockDuration = 0L
-  def lockIt(ms: Int) {
+  def lockIt(ms: Int): Unit = {
     lockTime = milliTime
     lockDuration = ms
     locked = true

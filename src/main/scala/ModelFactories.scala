@@ -1,6 +1,7 @@
 package org.psywerx.PsyDrive
 
 import Global._
+import Utils.{D,F}
 import org.lwjgl.opengl.GL11._
 import scala.util.Random.{nextInt, nextFloat}
 
@@ -10,11 +11,11 @@ abstract class ModelFactory {
 
 object TerrainFactory extends ModelFactory {
   // terrain
-  val (detail,height) = (30,0.3f)
+  val (detail,height) = (30, 0.3f)
   
   /*private def genTerrain: () => Object = () => {
     def getTerrainPoint(x: Int, y: Int): Vec3 = Vec3(x/detail.toFloat,nextFloat*height,y/detail.toFloat)
-    (for(i <- 0 to detail; j <- 0 to detail) yield getTerrainPoint(i,j)).toArray
+    Array.tabulate(detail+1, detail+1)((i, j) => getTerrainPoint(i,j))
   }
   private def drawTerrain: Object => Unit = (data: Object) => {
     val points = data.asInstanceOf[Array[Vec3]]
@@ -32,89 +33,93 @@ object TerrainFactory extends ModelFactory {
   private val barrier = Utils.loadTex("barrier.png")
   private def genTerrain: () => Object = () => { Array[Int]() }
   private def drawTerrain: Object => Unit = (data: Object) => {
-    glColor3f(1f,1f,1f)
+    glColor3f(1f, 1f, 1f)
     glBindTexture(GL_TEXTURE_2D, asphalt)
     glEnable(GL_TEXTURE_2D)
     glBegin(GL_QUADS)
-      val density = 50
-      glNormal3f(0, 1, 0)
+      val density = 75f
+      glNormal3f(0f, 1f, 0f)
 
-      glTexCoord2f(0, 0)
-      glVertex3d(0, 0, 0)
+      glTexCoord2f(0f, 0f)
+      glVertex3f(0f, 0f, 0f)
       
-      glTexCoord2f(density, 0)
-      glVertex3d(1, 0, 0)
+      glTexCoord2f(density, 0f)
+      glVertex3f(1f, 0f, 0f)
       
       glTexCoord2f(density, density)
-      glVertex3d(1, 0, 1)
+      glVertex3f(1f, 0f, 1f)
       
-      glTexCoord2f(0, density)
-      glVertex3d(0, 0, 1)
+      glTexCoord2f(0f, density)
+      glVertex3f(0f, 0f, 1f)
     glEnd()
     glBindTexture(GL_TEXTURE_2D, barrier)
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glBegin(GL_QUADS)
-      glNormal3f(0, 1, 0)
 
-      glTexCoord2f(0, 0)
-      glVertex3d(0, 0, 0)
+    //glEnable(GL_ALPHA_TEST)
+    //glAlphaFunc(GL_EQUAL, 1f)
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+    glBegin(GL_QUADS)
+      glNormal3f(0f, 1f, 0f)
+
+      glTexCoord2f(0f, 0f)
+      glVertex3f(0f, 0f, 0f)
       
-      glTexCoord2f(0, 1)
-      glVertex3d(0, 1, 0)
+      glTexCoord2f(0f, 1f)
+      glVertex3f(0f, 1f, 0f)
       
-      glTexCoord2f(1, 1)
-      glVertex3d(0, 1, 1)
+      glTexCoord2f(1f, 1f)
+      glVertex3f(0f, 1f, 1f)
       
-      glTexCoord2f(1, 0)
-      glVertex3d(0, 0, 1)
+      glTexCoord2f(1f, 0f)
+      glVertex3f(0f, 0f, 1f)
     glEnd()
     glBegin(GL_QUADS)
-      glNormal3f(0, 1, 0)
+      glNormal3f(0f, 1f, 0f)
 
-      glTexCoord2f(0, 0)
-      glVertex3d(1, 0, 0)
+      glTexCoord2f(0f, 0f)
+      glVertex3f(1f, 0f, 0f)
       
-      glTexCoord2f(0, 1)
-      glVertex3d(1, 1, 0)
+      glTexCoord2f(0f, 1f)
+      glVertex3f(1f, 1f, 0f)
       
-      glTexCoord2f(1, 1)
-      glVertex3d(1, 1, 1)
+      glTexCoord2f(1f, 1f)
+      glVertex3f(1f, 1f, 1f)
       
-      glTexCoord2f(1, 0)
-      glVertex3d(1, 0, 1)
+      glTexCoord2f(1f, 0f)
+      glVertex3f(1f, 0f, 1f)
     glEnd()
     glBegin(GL_QUADS)
-      glNormal3f(0, 1, 0)
+      glNormal3f(0f, 1f, 0f)
 
-      glTexCoord2f(0, 0)
-      glVertex3d(1, 0, 1)
+      glTexCoord2f(0f, 0f)
+      glVertex3f(1f, 0f, 1f)
       
-      glTexCoord2f(0, 1)
-      glVertex3d(1, 1, 1)
+      glTexCoord2f(0f, 1f)
+      glVertex3f(1f, 1f, 1f)
       
-      glTexCoord2f(1, 1)
-      glVertex3d(0, 1, 1)
+      glTexCoord2f(1f, 1f)
+      glVertex3f(0f, 1f, 1f)
       
-      glTexCoord2f(1, 0)
-      glVertex3d(0, 0, 1)
+      glTexCoord2f(1f, 0f)
+      glVertex3f(0f, 0f, 1f)
     glEnd()
     glBegin(GL_QUADS)
-      glNormal3f(0, 1, 0)
+      glNormal3f(0f, 1f, 0f)
 
-      glTexCoord2f(0, 0)
-      glVertex3d(0, 0, 0)
+      glTexCoord2f(0f, 0f)
+      glVertex3f(0f, 0f, 0f)
       
-      glTexCoord2f(0, 1)
-      glVertex3d(0, 1, 0)
+      glTexCoord2f(0f, 1f)
+      glVertex3f(0f, 1f, 0f)
       
-      glTexCoord2f(1, 1)
-      glVertex3d(1, 1, 0)
+      glTexCoord2f(1f, 1f)
+      glVertex3f(1f, 1f, 0f)
       
-      glTexCoord2f(1, 0)
-      glVertex3d(1, 0, 0)
+      glTexCoord2f(1f, 0f)
+      glVertex3f(1f, 0f, 0f)
     glEnd()
-    glDisable(GL_BLEND);
+    //glDisable(GL_ALPHA_TEST)
+    glDisable(GL_BLEND)
     
     glDisable(GL_TEXTURE_2D)
   }
@@ -125,10 +130,10 @@ object TerrainFactory extends ModelFactory {
 object PigFactory extends ModelFactory {
   private def genPig: () => Object = () => {
     val pigData = new SettingMap[String]
-    pigData += "Moustache.has" -> (nextFloat > 0.2)
-    pigData += "Moustache.which" -> (nextInt(2))
-    pigData += "Glasses.has" -> (nextFloat > 0.2)
-    pigData += "Glasses.which" -> (nextInt(3))
+    pigData += "Moustache.has" -> 0.2.prob
+    pigData += "Moustache.which" -> nextInt(2)
+    pigData += "Glasses.has" -> 0.2.prob
+    pigData += "Glasses.which" -> nextInt(3)
   }
   private def drawPig(data: Object) {
     val pigData = data.asInstanceOf[SettingMap[String]]
@@ -144,10 +149,10 @@ object PigFactory extends ModelFactory {
     }
     //ears
     {
-      glColor3f(0.4f,0.9f,0.4f)
+      glColor3f(0.4f, 0.9f, 0.4f)
       glPushMatrix()
       val x = 0.9f
-      glRotatef(180,0,1,0)
+      glRotatef(180, 0,1,0)
       glTranslatef(x,1.7f,-0.7f)
       gluQuadrics.disk.draw(0,0.35f, graphics*8,1)
       glTranslatef(-2*x,0,0)
@@ -157,17 +162,17 @@ object PigFactory extends ModelFactory {
     //nose
     {
       glPushMatrix()
-      glColor3f(0.4f,1f,0.4f)
-      glScalef(1,1,1)
-      glTranslatef(0,0.4f,1.4f)
+      glColor3f(0.4f, 1f, 0.4f)
+      glScalef(1f, 1f, 1f)
+      glTranslatef(0f, 0.4f, 1.4f)
       val size = 0.7f
       gluQuadrics.cylinder.draw(size,size, 1, graphics*12,1)
-      glTranslatef(0,0,1)
+      glTranslatef(0f, 0f, 1f)
       gluQuadrics.disk.draw(0,size, graphics*12,1)
       //moustache
       if(pigData.get[Boolean]("Moustache.has")) {
-        glScalef(2,1,1)
-        glColor3f(0.7f,0.2f,0f)
+        glScalef(2f, 1f, 1f)
+        glColor3f(0.7f, 0.2f, 0f)
         pigData.get[Int]("Moustache.which") match {
           case 0 =>
             glTranslatef(0,-0.7f,-0.2f)
@@ -222,7 +227,7 @@ object PigFactory extends ModelFactory {
   override def apply() = new GeneratorModel(genPig, drawPig)
 }
 
-case class Bullet(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f)) extends DisplayModel(() => {
+case class Bullet(color: Vec4 = Vec4(1f, 1f, 1f, 1f), val scaling: Vec3 = Vec3(0.5f, 0.5f, 0.5f), var active: Boolean = true) extends DisplayModel(() => {
     def cube() {
       glBegin(GL_QUADS)
         // top
@@ -262,16 +267,22 @@ case class Bullet(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7
         glVertex3f( 1f,-1f, 1f)
         glVertex3f( 1f,-1f,-1f)
       glEnd()
-    }  
+    } 
 
     glPushMatrix()
-      if(color.x < 0d) glColor3f(util.Random.nextFloat,util.Random.nextFloat,util.Random.nextFloat)
-      else glColor3f(color.x,color.y,color.z)
-      glPushMatrix()//canon
-        glScaled(scaling.y*0.3,scaling.y*0.3,scaling.y*0.3)
+      glEnable(GL_BLEND)
+      glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+      if(color.x < 0d) 
+        glColor4f(util.Random.nextFloat,util.Random.nextFloat,util.Random.nextFloat, color.w)
+      else 
+        glColor4f(color.x,color.y,color.z, color.w)
+      
+      //glPushMatrix()//canon
+        glScalef(scaling.x,scaling.y,scaling.z)
         //glTranslated(0,0,0)
         cube()
-      glPopMatrix()
+      //glPopMatrix()
+      glDisable(GL_BLEND)
     glPopMatrix()
 })
 {
@@ -280,7 +291,7 @@ case class Bullet(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7
   box.max += 1
 }
 
-case class Car(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f)) extends DisplayModel(() => {
+case class Car(color: Vec4 = Vec4(1f,1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f), var bulletOffset: Vec3 = Vec3(0f,3f,0f)) extends DisplayModel(() => {
     def cube() {
       glBegin(GL_QUADS)
         // top
@@ -323,8 +334,11 @@ case class Car(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f))
     }
 
     glPushMatrix()
-      if(color.x < 0d) glColor3f(0.7f,0.1f,0.1f)
-      else glColor3f(color.x,color.y,color.z)
+      if(color.x < 0d) 
+        glColor4f(0.7f,0.1f,0.1f,1f)
+      else 
+        glColor4f(color.x,color.y,color.z,color.w)
+      
       glPushMatrix()//tank
         glScalef(scaling.x,scaling.y,scaling.z)
         cube();
@@ -336,11 +350,11 @@ case class Car(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f))
         cube()
       glPopMatrix()
       if(color.x < 0d) glColor3f(0.1f,0.1f,0.6f)
-      glPushMatrix()//cupole
+      //glPushMatrix()//cupole
         glScaled(scaling.y*1.4,scaling.y*0.7,scaling.y*1.6)
         glTranslated(0,scaling.y,0)
         cube()
-      glPopMatrix()
+      //glPopMatrix()
     glPopMatrix()
 
     def drawWheel() {
@@ -376,7 +390,7 @@ case class Car(color: Vec3 = Vec3(1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f))
     glTranslatef(-scaling.x-1,-scaling.y,-scaling.z+2f)
     drawWheel()
     glPopMatrix()
-  })
+  }) with Cache
 {
   val box = new BoundingBox(Vec3())
   box.min -= scaling
@@ -417,7 +431,8 @@ object TreeFactory extends ModelFactory {
     var data: Object = null
     var limit = 10
     while(data == null) try {
-        data = genTree/("give-me-tree", 
+      data = 
+        genTree/("give-me-tree", 
           0f+nextFloat/10-nextFloat/10, 
           2f+nextFloat/2-nextFloat/3, 
           0f+nextFloat/10-nextFloat/10, 
@@ -450,7 +465,7 @@ object TreeFactory extends ModelFactory {
     tree
   }
   
-  private def renderTree: Object => Unit = (data: Object) => {
+  private def renderfunc: Object => Unit = (data: Object) => {
     glEnable(GL_CULL_FACE)
     glCullFace(GL_BACK)
     data.asInstanceOf[Branch].doAll(_.render)
@@ -466,9 +481,9 @@ object TreeFactory extends ModelFactory {
     mid
   }
   
-  override def apply() = {
+  override def apply(): GeneratorModel with Cache = {
     import Global._
-    val tree = new GeneratorModel(giveMeTree, renderTree)
+    val tree = new GeneratorModel(giveMeTree, renderfunc) with Cache
     def random(span: Float): Float = (17+nextFloat*3-nextFloat*3)*nextFloat*span
     
     tree.setPosition(
