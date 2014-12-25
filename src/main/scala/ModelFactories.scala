@@ -72,8 +72,8 @@ object TerrainFactory extends ModelFactory {
       
       glTexCoord2f(1f, 0f)
       glVertex3f(0f, 0f, 1f)
-    glEnd()
-    glBegin(GL_QUADS)
+    //glEnd()
+    //glBegin(GL_QUADS)
       glNormal3f(0f, 1f, 0f)
 
       glTexCoord2f(0f, 0f)
@@ -87,8 +87,8 @@ object TerrainFactory extends ModelFactory {
       
       glTexCoord2f(1f, 0f)
       glVertex3f(1f, 0f, 1f)
-    glEnd()
-    glBegin(GL_QUADS)
+    //glEnd()
+    //glBegin(GL_QUADS)
       glNormal3f(0f, 1f, 0f)
 
       glTexCoord2f(0f, 0f)
@@ -102,8 +102,8 @@ object TerrainFactory extends ModelFactory {
       
       glTexCoord2f(1f, 0f)
       glVertex3f(0f, 0f, 1f)
-    glEnd()
-    glBegin(GL_QUADS)
+    //glEnd()
+    //glBegin(GL_QUADS)
       glNormal3f(0f, 1f, 0f)
 
       glTexCoord2f(0f, 0f)
