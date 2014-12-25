@@ -2,7 +2,7 @@ name := "PsyDrive"
 
 organization := "Psywerx"
 
-scalaVersion := "2.11.2"
+scalaVersion := "2.11.4"
 
 resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo)
 
