@@ -9,7 +9,7 @@ abstract class Model {
   var pos = Vec3()
   var rot = Vec3()
   private var scal = Vec3(1f,1f,1f)
-  def scale = scal
+  def scale: Vec3 = scal
   def scale_=(v: Vec3) { scal = v }
   var visible = true
 
@@ -158,7 +158,7 @@ class TrailModel(points: List[Vec3])
       }
     }) with Cache {
     
-  def +=(v: Vec3) = {
+  def +=(v: Vec3): Unit = {
     data = data.asInstanceOf[List[Vec3]] :+ v.clone
   }
 }

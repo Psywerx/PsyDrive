@@ -52,8 +52,8 @@ final class Vec3(var x: Float, var y: Float, var z: Float) {
 }
 
 final object Vec4 {
-  def apply(x: Float, y: Float, z: Float) = new Vec4(x,y,z,1f)
-  def apply(x: Float, y: Float, z: Float, w: Float) = new Vec4(x,y,z,w)
+  def apply(x: Float, y: Float, z: Float): Vec4 = new Vec4(x,y,z,1f)
+  def apply(x: Float, y: Float, z: Float, w: Float): Vec4 = new Vec4(x,y,z,w)
 }
 final class Vec4(var x: Float, var y: Float, var z: Float, var w: Float) {
   override def clone: Vec4 = Vec4(x,y,z,w)
