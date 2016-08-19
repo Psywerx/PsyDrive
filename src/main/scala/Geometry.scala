@@ -68,10 +68,6 @@ final class BoundingBox(var min: Vec3) {
     this(v1.clone)
     this += v2
   }
-  def this(points: List[Vec3]) = {
-    this(points(0).clone)
-    for(i <- 1 until points.length) this += points(i)
-  }
   
   def boxCollide(b: BoundingBox, offset: Vec3 = Vec3()): Boolean = {///@ tolerance
     ((min.x+offset.x <= b.max.x) && (max.x+offset.x >= b.min.x) && 

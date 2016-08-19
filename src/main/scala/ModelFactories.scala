@@ -452,7 +452,7 @@ object TreeFactory extends ModelFactory {
     tree.properties += "fatness" -> (0.25f+nextFloat/20f-nextFloat/20f)
     
     def generateBoxes(branch: Branch): BoundingBox = {
-      val box = new BoundingBox(List(branch.rootVec, branch.destVec))
+      val box = new BoundingBox(branch.rootVec, branch.destVec)
       for(child <- branch.children) box += generateBoxes(child)
       
       branch.properties += "box" -> box

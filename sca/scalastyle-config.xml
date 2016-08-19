@@ -102,7 +102,7 @@
    <parameter name="ignoreRegex"><![CDATA[^".?"$]]></parameter>
   </parameters>
  </check>
- <check class="org.scalastyle.scalariform.ProcedureDeclarationChecker" level="warning" enabled="true"/>
+ <check level="warning" class="org.scalastyle.scalariform.ProcedureDeclarationChecker" enabled="true"/>
  <check level="warning" class="org.scalastyle.file.NewLineAtEofChecker" enabled="true"/>
  <check level="warning" class="org.scalastyle.file.RegexChecker" enabled="true">
   <customMessage>Disallowed import</customMessage>

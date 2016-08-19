@@ -2,13 +2,13 @@ name := "PsyDrive"
 
 organization := "Psywerx"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 
 resolvers ++= Seq("snapshots", "releases").map(Resolver.sonatypeRepo)
 
-libraryDependencies += "org.clojure" % "clojure" % "1.7.0"
+libraryDependencies += "org.clojure" % "clojure" % "1.8.0"
 
-libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
+libraryDependencies += "org.apache.commons" % "commons-math3" % "3.6.1"
 
 fork := true
 
