@@ -7,7 +7,7 @@ class ClojureWrap(ns: String, objName: String) {
   RT.loadResourceScript(objName+".clj")
   val obj = ns+"."+objName
   val funcs = new mutable.AnyRefMap[String, Var]
-  
+
   def /(func: String, a: Any): Object =
     funcs.getOrElseUpdate(func, RT.`var`(obj, func)).invoke(a.asInstanceOf[Object])
   def /(func: String, a: Any, b: Any): Object =

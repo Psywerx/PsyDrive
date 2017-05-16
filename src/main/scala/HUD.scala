@@ -7,18 +7,18 @@ object HUD {
   val cam = new Camera
   cam.setViewPort(0,0,PsyDrive.winWidth,PsyDrive.winHeight)
   cam.setOrtho(0,PsyDrive.winHeight,PsyDrive.winWidth,0,-1f,1f)
-  
-  def render() {
+
+  def render(): Unit = {
     cam.render
-    
+
     glDisable(GL_LIGHTING)
     glDisable(GL_DEPTH_TEST)
-    
+
     glEnable(GL_BLEND)
-    
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-    
-    def doLine() {
+
+    def doLine(): Unit = {
       glPushMatrix()
       glColor4f(0f, 0f, 0f, 1f)
       val thickness = 50
@@ -33,7 +33,7 @@ object HUD {
       glPopMatrix()
     }
 
-    def doGameOver() {
+    def doGameOver(): Unit = {
       glPushMatrix()
       glEnable(GL_TEXTURE_2D)
       glBindTexture(GL_TEXTURE_2D, PsyDrive.gameover)
@@ -47,12 +47,12 @@ object HUD {
         glTexCoord2f(1f, 1f); glVertex2f(width, width)
         glTexCoord2f(1f, 0f); glVertex2f(width,    0f)
         glTexCoord2f(0f, 0f); glVertex2f(   0f,    0f)
-      glEnd() 
+      glEnd()
       glDisable(GL_TEXTURE_2D)
       glPopMatrix()
     }
 
-    def playerHud(p: Player) {
+    def playerHud(p: Player): Unit = {
       glPushMatrix()
 
       glEnable(GL_TEXTURE_2D)
@@ -63,9 +63,9 @@ object HUD {
         glTexCoord2f(1f, 1f); glVertex2f(128f, 128f)
         glTexCoord2f(1f, 0f); glVertex2f(128f,   0f)
         glTexCoord2f(0f, 0f); glVertex2f(  0f,   0f)
-      glEnd() 
+      glEnd()
       glDisable(GL_TEXTURE_2D)
-      
+
       glPushMatrix()
       glColor4f(1, 0, 0, 0.8f)
       glTranslatef(200, 0, 0)
@@ -92,17 +92,17 @@ object HUD {
 
       glPopMatrix()
     }
-    
-    if(PsyDrive.players(0).health <= 0 || PsyDrive.players(1).health <= 0) {
+
+    if (PsyDrive.players(0).health <= 0 || PsyDrive.players(1).health <= 0) {
       doGameOver()
     } else {
       doLine()
     }
 
     glTranslatef(50,50,0)
-    if(PsyDrive.players(0).health > 0) playerHud(PsyDrive.players(0))
+    if (PsyDrive.players(0).health > 0) playerHud(PsyDrive.players(0))
     glTranslatef(PsyDrive.winWidth/2,0,0)
-    if(PsyDrive.players(1).health > 0) playerHud(PsyDrive.players(1))
+    if (PsyDrive.players(1).health > 0) playerHud(PsyDrive.players(1))
 
     glDisable(GL_TEXTURE_2D)
     glDisable(GL_BLEND)

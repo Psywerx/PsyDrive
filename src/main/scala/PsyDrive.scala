@@ -1,16 +1,15 @@
 package org.psywerx.PsyDrive
 
-import org.lwjgl.opengl.{Display,PixelFormat,DisplayMode,Util}
+import org.lwjgl.opengl.{Display, PixelFormat}
 import org.lwjgl.input.Keyboard
 import scala.collection.mutable
 import scala.collection.Traversable
 import java.nio._
 import scala.concurrent._
-import scala.concurrent.util._
+//import scala.concurrent.util._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import scala.util.Random
-import scala.util.Random.nextFloat
 import Keyboard._
 
 object PsyDrive {
@@ -30,7 +29,7 @@ object PsyDrive {
   /**
    * Initializes display and enters main loop
    */
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     //withExit(
       initDisplay()//,
     //  println("Can't open display.")
@@ -42,7 +41,7 @@ object PsyDrive {
     Display.destroy()
   }
 
-  def initDisplay() {
+  def initDisplay(): Unit = {
     Display.setTitle("PsyDrive")
     Display.setVSyncEnabled(true)
     Display.setFullscreen(true)
@@ -71,13 +70,13 @@ object PsyDrive {
   // Frame-independent movement timer
   var frameTime = currentTime
 
-  def decreaseDetail() {
+  def decreaseDetail(): Unit = {
     import Settings._
     graphics -= 1
-    if(graphics == 1 && maxDepth > 5) maxDepth = 5
+    if (graphics == 1 && maxDepth > 5) maxDepth = 5
     println("decreased graphic detail to "+graphics)
   }
-  def increaseDetail() {
+  def increaseDetail(): Unit = {
     import Settings._
     graphics += 1
     maxDepth += 1
@@ -87,7 +86,7 @@ object PsyDrive {
   /**
    * Game loop: renders and processes input events
    */
-  def gameLoop() { 
+  def gameLoop(): Unit = { 
     makeModels() // make generative models
     setupView()  // setup camera and lights
   
@@ -99,7 +98,7 @@ object PsyDrive {
     frameTime = currentTime
 
     gameLoopRunning = true
-    while(gameLoopRunning) {
+    while (gameLoopRunning) {
       processInput() // process keyboard input
       
       resetView()   // clear view and reset transformations
@@ -107,7 +106,7 @@ object PsyDrive {
       Display.update() // update window contents and process input messages
       frameCounter += 1
 
-      if(currentTime-FPStimer > second*FPSseconds) {
+      if (currentTime-FPStimer > second*FPSseconds) {
         val FPS = frameCounter/FPSseconds.toFloat
         println("-------------------")
         println("FPS: "+FPS)
@@ -115,9 +114,9 @@ object PsyDrive {
         println("Render: "+(renderTimes/fullTimes.toDouble).toFloat)
         println("Physics: "+(physicsTimes/fullTimes.toDouble).toFloat)
         println("Worker: "+(workerTimes/fullTimes.toDouble).toFloat)
-        if(testNum1 != 0) println("testNum1: " + testNum1)
-        if(testNum2 != 0) println("testNum2: " + testNum2)
-        if(testNum3 != 0) println("testNum3: " + testNum3)
+        if (testNum1 != 0) println("testNum1: " + testNum1)
+        if (testNum2 != 0) println("testNum2: " + testNum2)
+        if (testNum3 != 0) println("testNum3: " + testNum3)
         println("-------------------")
 
         lastFPS = FPS
@@ -147,7 +146,7 @@ object PsyDrive {
   
   def models(): Traversable[DisplayModel] = (players.map(_.car) ++ players.flatMap(_.shots).map(_.bullet) ++ List(terrain) ++ particles ++ trees ++ dropBranches ++ trails ++ diposedBullets)
   
-  def makeModels() {
+  def makeModels(): Unit = {
     terrain = TerrainFactory()
     terrain.setPosition(-Settings.worldSize,0,-Settings.worldSize)
     terrain.setScale(Settings.worldSize*2, 5, Settings.worldSize*2)
@@ -189,10 +188,10 @@ object PsyDrive {
         )
       ).take(2).toVector
 
-    for((player, i) <- players.zipWithIndex) {
+    for ((player, i) <- players.zipWithIndex) {
       player.car.setPosition(i*20,player.car.scaling.y+1,0)
       player.car.vector = Vec3(0,0,0)
-      if(i == 0)
+      if (i == 0)
         player.cam.setViewPort(0,0,winWidth/2,winHeight)
       else
         player.cam.setViewPort(winWidth/2,0,winWidth/2,winHeight)
@@ -209,7 +208,7 @@ object PsyDrive {
   /**
   * Initial setup of projection of the scene onto screen, lights etc.
   */
-  def setupView() {
+  def setupView(): Unit = {
     glClearColor(0.3f, 0.6f, 0.8f, 1f)
 
     glEnable(GL_DEPTH_TEST) // enable depth buffer (off by default)
@@ -247,7 +246,7 @@ object PsyDrive {
   /**
   * Resets the view of current frame
   */
-  def resetView() {
+  def resetView(): Unit = {
     // clear color and depth buffer
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
   }
@@ -263,26 +262,26 @@ object PsyDrive {
   /**
   * Renders current frame
   */
-  def renderFrame() {
+  def renderFrame(): Unit = {
     fullTimes += time {
       workerTimes += time {///write tasks object
         // execute non-time-critical tasks... spread them out
-        if(tasks.nonEmpty) {
+        if (tasks.nonEmpty) {
           tasks.head()
           tasks = tasks.tail
-          /*val cutoff = if(pause) 10 else 50
+          /*val cutoff = if (pause) 10 else 50
           var tasksLen = tasks.length
           def doTask() {
             tasks.head()
             tasks = tasks.tail
             tasksLen -= 1
           }
-          for(i <- 0 to tasksLen/cutoff; if(0.05f+(tasksLen-cutoff*i)/(cutoff.toFloat) > nextFloat)) doTask()
-          if(tasks.isEmpty) println("all tasks done")*/
+          for (i <- 0 to tasksLen/cutoff; if (0.05f+(tasksLen-cutoff*i)/(cutoff.toFloat) > nextFloat)) doTask()
+          if (tasks.isEmpty) println("all tasks done")*/
         }
       }
     
-      if(!pause) {
+      if (!pause) {
         physicsTimes += time {
           diposedBullets = diposedBullets.filter { bullet =>
             bullet.color.w *= 0.85f
@@ -296,39 +295,39 @@ object PsyDrive {
             obj.vector.y,
             math.cos(obj.rot.y*(math.Pi/180f)).toFloat*obj.vector.z
           )
-          for(p <- players) {
+          for (p <- players) {
             //shots
-            for(s <- p.shots) {
+            for (s <- p.shots) {
               s.bullet.pos += moveVector(s.bullet)*renderTime
               val tmp = s.bullet.pos.clone
               s.bullet.pos.clamp(Settings.worldSize+5)
-              if(tmp != s.bullet.pos) s.dispose()
+              if (tmp != s.bullet.pos) s.dispose()
             }
 
-            if(math.abs(p.car.vector.z) < 0.1) p.car.vector.z = 0.1f
+            if (math.abs(p.car.vector.z) < 0.1) p.car.vector.z = 0.1f
             
             p.car.vector.z += 0.05f*renderTime
             p.car.vector.clamp(0,0,5)
 
             p.car.pos += moveVector(p.car)*renderTime
             //collision detection
-            for(p2 <- players filterNot { _ == p}; s <- p2.shots) {
+            for (p2 <- players filterNot { _ == p}; s <- p2.shots) {
               val pBox = p.car.box.offsetBy(p.car.pos)
               val sBox = s.bullet.box.offsetBy(s.bullet.pos)
               val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
-              if((pBox boxCollide sBox) || (pBox2 boxCollide sBox)) {
+              if ((pBox boxCollide sBox) || (pBox2 boxCollide sBox)) {
                   p.health -= 50
                   p.car.vector.z = -p.car.vector.z/300f
                   s.dispose()
               }
             }
-            for(r <- players; if !(r eq p)) {
+            for (r <- players; if !(r eq p)) {
               val pBox = p.car.box.offsetBy(p.car.pos)
               val rBox = r.car.box.offsetBy(r.car.pos)
-              val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
-              val rBox2 = r.car.box.offsetBy(r.car.pos + moveVector(r.car)*renderTime)
-              if(pBox boxCollide rBox) {
-                if(p.car.vector.z < r.car.vector.z) {
+              //val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
+              //val rBox2 = r.car.box.offsetBy(r.car.pos + moveVector(r.car)*renderTime)
+              if (pBox boxCollide rBox) {
+                if (p.car.vector.z < r.car.vector.z) {
                   p.health -= r.car.vector.z.toInt*3
                 } else {
                   r.health -= p.car.vector.z.toInt*3
@@ -338,29 +337,29 @@ object PsyDrive {
                 r.health -= p.car.vector.z.toInt*2
 
                 p.car.pos -= moveVector(p.car)*renderTime
-                while(!(pBox boxCollide rBox)) {
+                while (!(pBox boxCollide rBox)) {
                   p.car.pos += moveVector(p.car) * 0.01f
                 }
-                if(pBox boxCollide rBox) p.car.pos -= moveVector(p.car) * 0.01f
+                if (pBox boxCollide rBox) p.car.pos -= moveVector(p.car) * 0.01f
                 p.car.vector.z = -p.car.vector.z/1.5f
                 r.car.vector.z = -r.car.vector.z/1.5f
               }
             }
-            for(r <- trees) {
+            for (r <- trees) {
               val pBox = p.car.box.offsetBy(p.car.pos)
               val rBox = r.box.offsetBy(r.pos)
               val pBox2 = p.car.box.offsetBy(p.car.pos + moveVector(p.car)*renderTime)
-              if((pBox boxCollide rBox) || (pBox2 boxCollide rBox)) {
-                /*if(p.car.vector.z > 3) {
+              if ((pBox boxCollide rBox) || (pBox2 boxCollide rBox)) {
+                /*if (p.car.vector.z > 3) {
                   val branch = r.data.asInstanceOf[Branch]
                   def dropBranch(b: Branch): GeneratorModel = {
                     b.detach()
-                    for(child <- b.children) {
-                      if(child.depth < Settings.maxDepth) dropBranch(child)
+                    for (child <- b.children) {
+                      if (child.depth < Settings.maxDepth) dropBranch(child)
                       child.marked = true
                     }
                     
-                    if(0.6.prob) b.properties += "hasLeaf" -> false
+                    if (0.6.prob) b.properties += "hasLeaf" -> false
                     
                     val drop = new GeneratorModel(() => b, (data: Object) => data.asInstanceOf[Branch].doAll(_.render))
                     drop.pos = r.pos.clone
@@ -384,15 +383,17 @@ object PsyDrive {
               }
             }
             p.car.pos.clamp(Settings.worldSize - p.car.scaling.z)
-            if(p.car.pos.x >= Settings.worldSize - p.car.scaling.z) p.car.vector.z = p.car.vector.z/2f
+            if (p.car.pos.x >= Settings.worldSize - p.car.scaling.z) p.car.vector.z = p.car.vector.z/2f
 
             val moveObj = p.car
             p.cam.lookAt(moveObj)
+            /*
             val camVec = Vec3(
               math.sin(moveObj.rot.y*(math.Pi/180f)).toFloat*moveObj.vector.z,
               0,
               math.cos(moveObj.rot.y*(math.Pi/180f)).toFloat*moveObj.vector.z
             )
+            */
             //cam.angle = Vec3(0,-1,50)
             p.cam.angle = Vec3(0,-5,100)
               
@@ -402,37 +403,37 @@ object PsyDrive {
             p.cam.vector -= p.cam.vector*renderTime*0.05f
           }
 
-        if(players(0).health <= 0 || players(1).health <= 0) {
-          for(p <- players) {
+        if (players(0).health <= 0 || players(1).health <= 0) {
+          for (p <- players) {
             p.car.vector = Vec3()
-            for(shot <- p.shots) shot.dispose()
+            for (shot <- p.shots) shot.dispose()
           }
           pause = true
           isGameOver = true
           gameoverTimeLock.lockIt(5000)
         }
         // drop branches
-        for(branch <- dropBranches) {
+        for (branch <- dropBranches) {
           branch.vector += (Settings.gravity)*renderTime
           branch.pos += branch.vector*renderTime
-          if(branch.pos.y < -Settings.worldSize-50) {
+          if (branch.pos.y < -Settings.worldSize-50) {
             dropBranches -= branch
           }
         }
           
 /*        // collision detection with trees
-        for(tree <- trees; if(tree.visible)) {
+        for (tree <- trees; if (tree.visible)) {
           var done = false
           var collision = false
           val branch = tree.data.asInstanceOf[Branch]
           def dropBranch(b: Branch): GeneratorModel = {          
             b.detach()
-            for(child <- b.children) {
-              if(child.depth < Settings.maxDepth) dropBranch(child)
+            for (child <- b.children) {
+              if (child.depth < Settings.maxDepth) dropBranch(child)
               child.marked = true
             }
             
-            if(0.6.prob) b.properties += "hasLeaf" -> false
+            if (0.6.prob) b.properties += "hasLeaf" -> false
             
             val drop = new GeneratorModel(() => b, (data: Object) => data.asInstanceOf[Branch].doAll(_.render))
             drop.pos = tree.pos.clone
@@ -449,7 +450,7 @@ object PsyDrive {
           
           def getBox(m: DisplayModel): BoundingBox = { //TODO: default value :)
             val out = m.properties.get[BoundingBox]("box")
-            if(out == null) new BoundingBox(Vec3()) else out
+            if (out == null) new BoundingBox(Vec3()) else out
           }
           val moveBoxy = getBox(moveObj)
           moveObj.properties += "box" -> moveBoxy
@@ -459,8 +460,8 @@ object PsyDrive {
             b => {
               val box = b.properties.get[BoundingBox]("box")
               val canCollide = box.pointCollide(pig.pos, tree.pos)
-              if(b.depth == 1) {
-                if(!canCollide) {
+              if (b.depth == 1) {
+                if (!canCollide) {
                   done = true 
                 } else {
                   val basebox = (new BoundingBox(b.rootVec, b.destVec)).offsetBy(tree.pos)
@@ -468,11 +469,11 @@ object PsyDrive {
                   basebox.max.x += 2f
                   basebox.max.y -= 2f
                   basebox.max.z += 2f
-                  if(basebox.boxCollide(moveBox)) {
+                  if (basebox.boxCollide(moveBox)) {
                     moveObj.vector.z = -moveObj.vector.z
-                    if(math.abs(moveObj.vector.z) < 0.01f) moveObj.vector.z = 0.01f*math.abs(moveObj.vector.z)/moveObj.vector.z
+                    if (math.abs(moveObj.vector.z) < 0.01f) moveObj.vector.z = 0.01f*math.abs(moveObj.vector.z)/moveObj.vector.z
                     var limit = 500
-                    while(basebox.boxCollide(moveBox) && limit > 0) {
+                    while (basebox.boxCollide(moveBox) && limit > 0) {
                       val moveVec = Vec3(
                         math.sin(moveObj.rot.y/fixme(180f/math.Pi)).toFloat*moveObj.vector.z,
                         0,
@@ -484,14 +485,14 @@ object PsyDrive {
                     moveObj.vector.z = moveObj.vector.z/2
                   }
                 }
-              } else if(Settings.pigAir && ((pig.pos-(box.min+tree.pos)).length < 4.25f || (pig.pos-(box.max+tree.pos)).length < 4.25f)) { // should be if(box.pointCollide(pig.pos, tree.pos) && 
+              } else if (Settings.pigAir && ((pig.pos-(box.min+tree.pos)).length < 4.25f || (pig.pos-(box.max+tree.pos)).length < 4.25f)) { // should be if (box.pointCollide(pig.pos, tree.pos) && 
                 collision = true
                 var dropped = false
                 
                 pig.vector.y /= 2
                 
-                if(0.6.prob) {
-                  for(child <- b.children) if(0.75.prob) {
+                if (0.6.prob) {
+                  for (child <- b.children) if (0.75.prob) {
                     dropped = true
                     dropBranch(child)
                   }
@@ -500,7 +501,7 @@ object PsyDrive {
                   dropBranch(b)
                 }
                 
-                if(dropped) {
+                if (dropped) {
                   //println("collision")
                   done = true
                 } else {
@@ -510,14 +511,14 @@ object PsyDrive {
             }
           )
           
-          if(collision) {
+          if (collision) {
             //tree.compile()
             //tree.reset()
 
             var depthSum = 0
             val sumLim = 4
             branch.doWhile(b => depthSum <= sumLim, b => depthSum += 1)
-            if(depthSum <= sumLim) { // tree is dead
+            if (depthSum <= sumLim) { // tree is dead
               val drop = dropBranch(branch)
               drop.vector.y = 2
               trees -= tree
@@ -527,28 +528,28 @@ object PsyDrive {
         }
 
         // drop branches
-        for(branch <- dropBranches) {
+        for (branch <- dropBranches) {
           branch.vector += (Settings.gravity)*renderTime
           //branch.vector -= branch.vector*renderTime*0.05f
           branch.pos += branch.vector*renderTime
-          if(branch.pos.y < -Settings.worldSize-50) {
+          if (branch.pos.y < -Settings.worldSize-50) {
             dropBranches -= branch
             //branch.free()
-            //if(dropBranches.isEmpty) println("all broken branches removed")
+            //if (dropBranches.isEmpty) println("all broken branches removed")
           }
         }*/
         }
       }
       
       
-      if(futureTree == null) {
-        if(trees.length < 7 && tasks.size < 500) futureTree = future { TreeFactory() }
-      } else if(futureTree.isCompleted) {
+      if (futureTree == null) {
+        if (trees.length < 7 && tasks.size < 500) futureTree = Future { TreeFactory() }
+      } else if (futureTree.isCompleted) {
         val presentTree = Await.result(futureTree, Duration.Inf)
         trees += presentTree
         
-        def growTree(lvl: Int, tree: GeneratorModel) {
-          if(lvl <= Settings.maxDepth) {///@ move setting to tree!
+        def growTree(lvl: Int, tree: GeneratorModel): Unit = {
+          if (lvl <= Settings.maxDepth) {///@ move setting to tree!
             //val ex = Settings.maxDepth
             //Settings.maxDepth = lvl //TODO: oh my gawd, thread unsafe
             //tree.compile()
@@ -557,7 +558,7 @@ object PsyDrive {
         }
         
         growTree(2, presentTree)
-        for(i <- 3 to Settings.maxDepth) {
+        for (i <- 3 to Settings.maxDepth) {
           tasks :+= (() => growTree(i, presentTree))
         }
         
@@ -566,7 +567,7 @@ object PsyDrive {
       }
 
       renderTimes += time { 
-        for(p <- players) {
+        for (p <- players) {
           glPushMatrix()
           p.cam.render
           models().foreach(_.render)
@@ -577,50 +578,50 @@ object PsyDrive {
     }
   }
   
-  def processInput() {
-    if(Display.isCloseRequested || isKeyDown(KEY_ESCAPE)) {
+  def processInput(): Unit = {
+    if (Display.isCloseRequested || isKeyDown(KEY_ESCAPE)) {
       gameLoopRunning = false
       return
     }    
     
-    if(isGameOver && !gameoverTimeLock.isLocked) {
+    if (isGameOver && !gameoverTimeLock.isLocked) {
       sys.exit(0)
     }
     
     val keymove = 1.5f*renderTime
     
-    if(isKeyDown(KEY_Z) && !timeLock.isLocked){
+    if (isKeyDown(KEY_Z) && !timeLock.isLocked){
       terrain.visible = !terrain.visible
       timeLock.lockIt(100)     
     }
 
-    if(isKeyDown(KEY_G)) players.head.health = 0
+    if (isKeyDown(KEY_G)) players.head.health = 0
 
-    if(isKeyDown(KEY_P)) {
+    if (isKeyDown(KEY_P)) {
       pause = true; println("paused")
     }
-    if(isKeyDown(KEY_RSHIFT)) {
+    if (isKeyDown(KEY_RSHIFT)) {
       pause = false; println("unpaused")
     }
-    if(pause) return;
+    if (pause) return;
 
-    for(p <- players) {
-      if(isKeyDown(p.keys.up))  { p.car.vector.z += 0.2f; }
-      if(isKeyDown(p.keys.left))  { p.car.rot.y += keymove*7f; p.car.vector.z -= 0.05f*p.car.vector.z*renderTime }
-      if(isKeyDown(p.keys.right)) { p.car.rot.y -= keymove*7f; p.car.vector.z -= 0.05f*p.car.vector.z*renderTime }
-      if(isKeyDown(p.keys.shoot)) { if(!p.isShooting) p.shoot() }
+    for (p <- players) {
+      if (isKeyDown(p.keys.up))  { p.car.vector.z += 0.2f; }
+      if (isKeyDown(p.keys.left))  { p.car.rot.y += keymove*7f; p.car.vector.z -= 0.05f*p.car.vector.z*renderTime }
+      if (isKeyDown(p.keys.right)) { p.car.rot.y -= keymove*7f; p.car.vector.z -= 0.05f*p.car.vector.z*renderTime }
+      if (isKeyDown(p.keys.shoot)) { if (!p.isShooting) p.shoot() }
     }
     
-    if(isKeyDown(KEY_1)) { testNum1 += 1 }
-    if(isKeyDown(KEY_2)) { testNum1 -= 1 }
-    if(isKeyDown(KEY_3)) { testNum2 += 1 }
-    if(isKeyDown(KEY_4)) { testNum2 -= 1 }
-    if(isKeyDown(KEY_5)) { testNum3 += 1 }
-    if(isKeyDown(KEY_6)) { testNum3 -= 1 }
+    if (isKeyDown(KEY_1)) { testNum1 += 1 }
+    if (isKeyDown(KEY_2)) { testNum1 -= 1 }
+    if (isKeyDown(KEY_3)) { testNum2 += 1 }
+    if (isKeyDown(KEY_4)) { testNum2 -= 1 }
+    if (isKeyDown(KEY_5)) { testNum3 += 1 }
+    if (isKeyDown(KEY_6)) { testNum3 -= 1 }
     
     //players.head.car.bulletOffset = Vec3(testNum1/5f, 3+testNum2/5f, testNum3/5f)
 
-    if(isKeyDown(KEY_O)) {
+    if (isKeyDown(KEY_O)) {
       println("Cam: "+cam.toString)
     }
   }

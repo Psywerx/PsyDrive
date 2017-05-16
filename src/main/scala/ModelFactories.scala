@@ -1,7 +1,7 @@
 package org.psywerx.PsyDrive
 
 import Global._
-import Utils.{D,F}
+import Utils.D
 import org.lwjgl.opengl.GL11._
 import scala.util.Random.{nextInt, nextFloat}
 
@@ -12,7 +12,7 @@ abstract class ModelFactory {
 object TerrainFactory extends ModelFactory {
   // terrain
   val (detail,height) = (30, 0.3f)
-  
+
   /*private def genTerrain: () => Object = () => {
     def getTerrainPoint(x: Int, y: Int): Vec3 = Vec3(x/detail.toFloat,nextFloat*height,y/detail.toFloat)
     Array.tabulate(detail+1, detail+1)((i, j) => getTerrainPoint(i,j))
@@ -22,7 +22,7 @@ object TerrainFactory extends ModelFactory {
     glBegin(GL_QUADS)
     // Draw in clockwise - (00,10,11,01); must skip last point of line
     val width = math.sqrt(points.size).toInt
-    for(i <- 0 until points.size-width-1; if((i+1)%width != 0); pt <- List(points(i), points(i+1), points(i+width+1), points(i+width))) {
+    for (i <- 0 until points.size-width-1; if ((i+1)%width != 0); pt <- List(points(i), points(i+1), points(i+width+1), points(i+width))) {
       glColor3d(0.2+pt.y/4, 0.65f+pt.y/1.5, 0.2+pt.y/4)
       glNormal3f(pt.y, pt.y, pt.y)
       glVertex3f(pt.x, pt.y, pt.z)
@@ -42,13 +42,13 @@ object TerrainFactory extends ModelFactory {
 
       glTexCoord2f(0f, 0f)
       glVertex3f(0f, 0f, 0f)
-      
+
       glTexCoord2f(density, 0f)
       glVertex3f(1f, 0f, 0f)
-      
+
       glTexCoord2f(density, density)
       glVertex3f(1f, 0f, 1f)
-      
+
       glTexCoord2f(0f, density)
       glVertex3f(0f, 0f, 1f)
     glEnd()
@@ -63,13 +63,13 @@ object TerrainFactory extends ModelFactory {
 
       glTexCoord2f(0f, 0f)
       glVertex3f(0f, 0f, 0f)
-      
+
       glTexCoord2f(0f, 1f)
       glVertex3f(0f, 1f, 0f)
-      
+
       glTexCoord2f(1f, 1f)
       glVertex3f(0f, 1f, 1f)
-      
+
       glTexCoord2f(1f, 0f)
       glVertex3f(0f, 0f, 1f)
     //glEnd()
@@ -78,13 +78,13 @@ object TerrainFactory extends ModelFactory {
 
       glTexCoord2f(0f, 0f)
       glVertex3f(1f, 0f, 0f)
-      
+
       glTexCoord2f(0f, 1f)
       glVertex3f(1f, 1f, 0f)
-      
+
       glTexCoord2f(1f, 1f)
       glVertex3f(1f, 1f, 1f)
-      
+
       glTexCoord2f(1f, 0f)
       glVertex3f(1f, 0f, 1f)
     //glEnd()
@@ -93,13 +93,13 @@ object TerrainFactory extends ModelFactory {
 
       glTexCoord2f(0f, 0f)
       glVertex3f(1f, 0f, 1f)
-      
+
       glTexCoord2f(0f, 1f)
       glVertex3f(1f, 1f, 1f)
-      
+
       glTexCoord2f(1f, 1f)
       glVertex3f(0f, 1f, 1f)
-      
+
       glTexCoord2f(1f, 0f)
       glVertex3f(0f, 0f, 1f)
     //glEnd()
@@ -108,19 +108,19 @@ object TerrainFactory extends ModelFactory {
 
       glTexCoord2f(0f, 0f)
       glVertex3f(0f, 0f, 0f)
-      
+
       glTexCoord2f(0f, 1f)
       glVertex3f(0f, 1f, 0f)
-      
+
       glTexCoord2f(1f, 1f)
       glVertex3f(1f, 1f, 0f)
-      
+
       glTexCoord2f(1f, 0f)
       glVertex3f(1f, 0f, 0f)
     glEnd()
     //glDisable(GL_ALPHA_TEST)
     glDisable(GL_BLEND)
-    
+
     glDisable(GL_TEXTURE_2D)
   }
 
@@ -135,10 +135,10 @@ object PigFactory extends ModelFactory {
     pigData += "Glasses.has" -> 0.2.prob
     pigData += "Glasses.which" -> nextInt(3)
   }
-  private def drawPig(data: Object) {
+  private def drawPig(data: Object): Unit = {
     val pigData = data.asInstanceOf[SettingMap[String]]
     val graphics = Settings.graphics
-    
+
     //body
     {
       glColor3f(0.3f,0.8f,0.3f)
@@ -170,7 +170,7 @@ object PigFactory extends ModelFactory {
       glTranslatef(0f, 0f, 1f)
       gluQuadrics.disk.draw(0,size, graphics*12,1)
       //moustache
-      if(pigData.get[Boolean]("Moustache.has")) {
+      if (pigData.get[Boolean]("Moustache.has")) {
         glScalef(2f, 1f, 1f)
         glColor3f(0.7f, 0.2f, 0f)
         pigData.get[Int]("Moustache.which") match {
@@ -191,7 +191,7 @@ object PigFactory extends ModelFactory {
     {
       glPushMatrix()
       val x = 1.2f
-      def drawEye(leftEye: Boolean) {
+      def drawEye(leftEye: Boolean): Unit = {
         glPushMatrix()
         glColor3f(0.8f,0.8f,0.8f)
         gluQuadrics.sphere.draw(0.5f,graphics*8,graphics*8)
@@ -200,14 +200,14 @@ object PigFactory extends ModelFactory {
         glColor3f(0.1f,0.1f,0.1f)
         gluQuadrics.sphere.draw(0.25f,graphics*8,graphics*8)
         glTranslatef(0,0,0.1f)
-        if(pigData.get[Boolean]("Glasses.has")) pigData.get[Int]("Glasses.which") match {
+        if (pigData.get[Boolean]("Glasses.has")) pigData.get[Int]("Glasses.which") match {
           case 0 => // ray-bans
             glTranslatef(0,0.2f,0.16f)
             gluQuadrics.disk.draw(0.60f,0.70f, graphics*10,1)
             glColor3f(0.20f,0.15f,0.15f)
             gluQuadrics.disk.draw(0,0.60f, graphics*10,1)
           case 1 => // monocle
-            if(leftEye) {
+            if (leftEye) {
               glColor3f(0.95f,0.8f,0.1f)
               gluQuadrics.disk.draw(0.62f,0.70f, graphics*10,1)
             }
@@ -223,12 +223,12 @@ object PigFactory extends ModelFactory {
       glPopMatrix()
     }
   }
-  
+
   override def apply() = new GeneratorModel(genPig, drawPig)
 }
 
 case class Bullet(color: Vec4 = Vec4(1f, 1f, 1f, 1f), val scaling: Vec3 = Vec3(0.5f, 0.5f, 0.5f), var active: Boolean = true) extends DisplayModel(() => {
-    def cube() {
+    def cube(): Unit = {
       glBegin(GL_QUADS)
         // top
         glNormal3f( 0f, 1f, 0f)
@@ -236,7 +236,7 @@ case class Bullet(color: Vec4 = Vec4(1f, 1f, 1f, 1f), val scaling: Vec3 = Vec3(0
         glVertex3f(-1f, 1f,-1f)
         glVertex3f(-1f, 1f, 1f)
         glVertex3f( 1f, 1f, 1f)
-        // bottom 
+        // bottom
         glNormal3f( 0f,-1f, 1f)
         glVertex3f( 1f,-1f, 1f)
         glVertex3f(-1f,-1f, 1f)
@@ -245,7 +245,7 @@ case class Bullet(color: Vec4 = Vec4(1f, 1f, 1f, 1f), val scaling: Vec3 = Vec3(0
         // Front
         glNormal3f( 0f, 0f, 1f)
         glVertex3f( 1f, 1f, 1f)
-        glVertex3f(-1f, 1f, 1f) 
+        glVertex3f(-1f, 1f, 1f)
         glVertex3f(-1f,-1f, 1f)
         glVertex3f( 1f,-1f, 1f)
         // back
@@ -267,16 +267,16 @@ case class Bullet(color: Vec4 = Vec4(1f, 1f, 1f, 1f), val scaling: Vec3 = Vec3(0
         glVertex3f( 1f,-1f, 1f)
         glVertex3f( 1f,-1f,-1f)
       glEnd()
-    } 
+    }
 
     glPushMatrix()
       glEnable(GL_BLEND)
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-      if(color.x < 0d) 
+      if (color.x < 0d)
         glColor4f(util.Random.nextFloat,util.Random.nextFloat,util.Random.nextFloat, color.w)
-      else 
+      else
         glColor4f(color.x,color.y,color.z, color.w)
-      
+
       //glPushMatrix()//canon
         glScalef(scaling.x,scaling.y,scaling.z)
         //glTranslated(0,0,0)
@@ -292,7 +292,7 @@ case class Bullet(color: Vec4 = Vec4(1f, 1f, 1f, 1f), val scaling: Vec3 = Vec3(0
 }
 
 case class Car(color: Vec4 = Vec4(1f,1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7f), var bulletOffset: Vec3 = Vec3(0f,3f,0f)) extends DisplayModel(() => {
-    def cube() {
+    def cube(): Unit = {
       glBegin(GL_QUADS)
         // top
         glNormal3f( 0f, 1f, 0f)
@@ -300,7 +300,7 @@ case class Car(color: Vec4 = Vec4(1f,1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7
         glVertex3f(-1f, 1f,-1f)
         glVertex3f(-1f, 1f, 1f)
         glVertex3f( 1f, 1f, 1f)
-        // bottom 
+        // bottom
         glNormal3f( 0f,-1f, 1f)
         glVertex3f( 1f,-1f, 1f)
         glVertex3f(-1f,-1f, 1f)
@@ -309,7 +309,7 @@ case class Car(color: Vec4 = Vec4(1f,1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7
         // Front
         glNormal3f( 0f, 0f, 1f)
         glVertex3f( 1f, 1f, 1f)
-        glVertex3f(-1f, 1f, 1f) 
+        glVertex3f(-1f, 1f, 1f)
         glVertex3f(-1f,-1f, 1f)
         glVertex3f( 1f,-1f, 1f)
         // back
@@ -334,22 +334,22 @@ case class Car(color: Vec4 = Vec4(1f,1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7
     }
 
     glPushMatrix()
-      if(color.x < 0d) 
+      if (color.x < 0d)
         glColor4f(0.7f,0.1f,0.1f,1f)
-      else 
+      else
         glColor4f(color.x,color.y,color.z,color.w)
-      
+
       glPushMatrix()//tank
         glScalef(scaling.x,scaling.y,scaling.z)
-        cube();
+        cube()
       glPopMatrix()
-      if(color.x < 0d) glColor3f(0.1f,0.6f,0.1f)
+      if (color.x < 0d) glColor3f(0.1f,0.6f,0.1f)
       glPushMatrix()//canon
         glScaled(scaling.y*0.3,scaling.y*0.3,scaling.z)
         glTranslated(0,scaling.y*2.6,scaling.z*0.2)
         cube()
       glPopMatrix()
-      if(color.x < 0d) glColor3f(0.1f,0.1f,0.6f)
+      if (color.x < 0d) glColor3f(0.1f,0.1f,0.6f)
       //glPushMatrix()//cupole
         glScaled(scaling.y*1.4,scaling.y*0.7,scaling.y*1.6)
         glTranslated(0,scaling.y,0)
@@ -357,14 +357,14 @@ case class Car(color: Vec4 = Vec4(1f,1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7
       //glPopMatrix()
     glPopMatrix()
 
-    def drawWheel() {
+    def drawWheel(): Unit = {
       glRotatef(90, 0,1,0)
       gluQuadrics.cylinder.draw(1f,1f, scaling.x*2+2, Settings.graphics*9,1)
       gluQuadrics.disk.draw(0, 1, 20, 1)
       glTranslatef(0,0,scaling.x*2+2)
       gluQuadrics.disk.draw(0, 1, 20, 1)
     }
-    if(color.x < 0d) glColor3f(0.5f,0.4f,0.1f)
+    if (color.x < 0d) glColor3f(0.5f,0.4f,0.1f)
     else glColor3f(0.1f,0.1f,0.1f)
     // Front wheel
     glPushMatrix()
@@ -372,19 +372,19 @@ case class Car(color: Vec4 = Vec4(1f,1f,1f,1f), val scaling: Vec3 = Vec3(4f,2f,7
     drawWheel()
     glPopMatrix()
 
-    if(color.x < 0d) glColor3f(0.1f,0.5f,0.5f)
+    if (color.x < 0d) glColor3f(0.1f,0.5f,0.5f)
     glPushMatrix()
     glTranslatef(-scaling.x-1,-scaling.y,scaling.z-5.25f)
     drawWheel()
     glPopMatrix()
 
-    if(color.x < 0d) glColor3f(0.5f,0.1f,0.5f)
+    if (color.x < 0d) glColor3f(0.5f,0.1f,0.5f)
     glPushMatrix()
     glTranslatef(-scaling.x-1,-scaling.y,-scaling.z+5.25f)
     drawWheel()
     glPopMatrix()
 
-    if(color.x < 0d) glColor3f(0.5f,0.5f,0.5f)
+    if (color.x < 0d) glColor3f(0.5f,0.5f,0.5f)
     // Back wheel
     glPushMatrix()
     glTranslatef(-scaling.x-1,-scaling.y,-scaling.z+2f)
@@ -402,40 +402,40 @@ object TreeFactory extends ModelFactory {
     def isJavaList(o: Object): Boolean = o.isInstanceOf[java.util.List[_]]
     def asArray(o: Object): Array[Object] = o.asInstanceOf[java.util.List[_]].toArray
     def asFloatArray(arr: Array[Object]): Array[Float] = arr.map { num =>
-      if(num.isInstanceOf[java.lang.Double])
+      if (num.isInstanceOf[java.lang.Double])
         num.asInstanceOf[java.lang.Double].floatValue()
       else
         num.asInstanceOf[Float]
     }
 
     def traverse(data: Array[Object], parent: Branch = null): Branch = {
-      if(data.size == 1) { // unpack thingy ... ((...))
+      if (data.size == 1) { // unpack thingy ... ((...))
         traverse(asArray(data(0)), parent)
-      } else if(data.size == 4 && !isJavaList(data(0))) { // leaves ... (node)
+      } else if (data.size == 4 && !isJavaList(data(0))) { // leaves ... (node)
         val vector = asFloatArray(data)
         val res = new Branch(parent)
-        if(parent != null) res.rootVec = parent.rootVec+parent.diffVec
+        if (parent != null) res.rootVec = parent.rootVec+parent.diffVec
         res.diffVec = Vec3(vector(0)*vector(3), vector(1)*vector(3), vector(2)*vector(3))
         res.properties += "hasLeaf" -> (nextFloat < 0.085*res.depth)
         res
-      } else if(!isJavaList(asArray(data(0)).apply(0)) && isJavaList(asArray(data(1)).apply(0))) { // parent & subbranches ((node) (...))
+      } else if (!isJavaList(asArray(data(0)).apply(0)) && isJavaList(asArray(data(1)).apply(0))) { // parent & subbranches ((node) (...))
         val newparent = traverse(asArray(data(0)), parent)
-        for(i <- 1 until data.size) traverse(asArray(data(i)), newparent)
+        for (i <- data.indices.tail) traverse(asArray(data(i)), newparent)
         newparent
       } else { // branches ... ((...) (...) (...))
-        for(i <- 0 until data.size) traverse(asArray(data(i)), parent)
+        for (i <- data.indices) traverse(asArray(data(i)), parent)
         parent
       }
     }
-    
+
     var data: Object = null
     var limit = 10
-    while(data == null) try {
-      data = 
-        genTree/("give-me-tree", 
-          0f+nextFloat/10-nextFloat/10, 
-          2f+nextFloat/2-nextFloat/3, 
-          0f+nextFloat/10-nextFloat/10, 
+    while (data == null) try {
+      data =
+        genTree/("give-me-tree",
+          0f+nextFloat/10-nextFloat/10,
+          2f+nextFloat/2-nextFloat/3,
+          0f+nextFloat/10-nextFloat/10,
           5f+nextFloat-nextFloat/2)
     } catch {
       case e: Throwable => {
@@ -443,20 +443,20 @@ object TreeFactory extends ModelFactory {
         println("give-me-tree threw exception")
         data = null
         limit -= 1
-        if(limit == 0) sys.exit(1)
+        if (limit == 0) sys.exit(1)
       }
     }
-    
+
     val tree = traverse(asArray(data))
     tree.properties += "treekind" -> 0//nextInt(3)
     tree.properties += "fatness" -> (0.25f+nextFloat/20f-nextFloat/20f)
-    
+
     def generateBoxes(branch: Branch): BoundingBox = {
       val box = new BoundingBox(branch.rootVec, branch.destVec)
-      for(child <- branch.children) box += generateBoxes(child)
-      
+      for (child <- branch.children) box += generateBoxes(child)
+
       branch.properties += "box" -> box
-      branch.properties += "fatness" -> (if(branch.children.isEmpty) 0.18f-nextFloat/30f else 0.2f-nextFloat/30f)
+      branch.properties += "fatness" -> (if (branch.children.isEmpty) 0.18f-nextFloat/30f else 0.2f-nextFloat/30f)
 
       box
     }
@@ -464,13 +464,14 @@ object TreeFactory extends ModelFactory {
 
     tree
   }
-  
+
   private def renderfunc: Object => Unit = (data: Object) => {
     glEnable(GL_CULL_FACE)
     glCullFace(GL_BACK)
     data.asInstanceOf[Branch].doAll(_.render)
     glDisable(GL_CULL_FACE)
   }
+  /*
   private def treeId: (DisplayModel, SettingMap[String]) => Int = (dmodel,properties) => {
     val model = dmodel.asInstanceOf[GeneratorModel]
     var mid = 0///to properties on fly
@@ -480,20 +481,21 @@ object TreeFactory extends ModelFactory {
     mid += mid + 101*Global.Settings.maxDepth
     mid
   }
-  
+  */
+
   override def apply(): GeneratorModel with Cache = {
     import Global._
     val tree = new GeneratorModel(giveMeTree, renderfunc) with Cache
     def random(span: Float): Float = (17+nextFloat*3-nextFloat*3)*nextFloat*span
-    
+
     tree.setPosition(
       random(10) - random(10),
       0,
       -Settings.worldSize/2+30 + random(10) - random(7))
-    
+
     //tree.box = tree.data.asInstanceOf[Branch].properties("box").asInstanceOf[BoundingBox]
     tree.box = new BoundingBox(tree.data.asInstanceOf[Branch].rootVec, tree.data.asInstanceOf[Branch].rootVec + Vec3(0,5,0))
-    
+
     tree
   }
 }

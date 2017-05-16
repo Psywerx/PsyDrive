@@ -1,9 +1,10 @@
 package org.psywerx.PsyDrive
 
+/*
 import org.lwjgl.opengl.GL11._
 
 
-/*case class Particles(var life: Int, var color: Vec3 = Vec3(1,1,1), val size: Float) extends DisplayModel(() => {
+case class Particles(var life: Int, var color: Vec3 = Vec3(1,1,1), val size: Float) extends DisplayModel(() => {
     glPushMatrix()
     glColor3f(color.x,color.y,color.z)
     glBegin(GL_QUADS)
@@ -13,7 +14,7 @@ import org.lwjgl.opengl.GL11._
       glVertex3f(-1f, 1f,-1f)
       glVertex3f(-1f, 1f, 1f)
       glVertex3f( 1f, 1f, 1f)
-      // bottom 
+      // bottom
       glNormal3f( 0f,-1f, 1f)
       glVertex3f( 1f,-1f, 1f)
       glVertex3f(-1f,-1f, 1f)
@@ -22,7 +23,7 @@ import org.lwjgl.opengl.GL11._
       // Front
       glNormal3f( 0f, 0f, 1f)
       glVertex3f( 1f, 1f, 1f)
-      glVertex3f(-1f, 1f, 1f) 
+      glVertex3f(-1f, 1f, 1f)
       glVertex3f(-1f,-1f, 1f)
       glVertex3f( 1f,-1f, 1f)
       // back
@@ -46,7 +47,7 @@ import org.lwjgl.opengl.GL11._
     glEnd()
     glPopMatrix()
 
-    def drawWheel() {
+    def drawWheel(): Unit = {
       glRotatef(90, 0,1,0)
       glColor3f(0.1f,0.1f,0.1f)
       gluQuadrics.cylinder.draw(1f,1f, scaling.x*2+2, Settings.graphics*9,1)

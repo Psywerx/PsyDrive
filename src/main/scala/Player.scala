@@ -1,15 +1,15 @@
 package org.psywerx.PsyDrive
 
 case class Player(
-    val name: String, 
+    val name: String,
     val car: Car,
-    val keys: Controls, 
+    val keys: Controls,
     val cam: Camera,
     var health: Int = 100,
     var avatar: Int = -1,
     var shots: Seq[Shot] = Seq[Shot]()) {
 
-  def shoot() {
+  def shoot(): Unit = {
     val bullet = Bullet(this.car.color.clone)
     bullet.pos = this.car.pos + this.car.bulletOffset
     bullet.vector = Vec3(0,0,7)
@@ -34,4 +34,4 @@ case class Controls(
     val up: Int,
     val left: Int,
     val right: Int,
-    val shoot: Int) 
+    val shoot: Int)
